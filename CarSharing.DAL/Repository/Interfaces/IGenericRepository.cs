@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using CarSharing.DAL.Entity;
+
+namespace CarSharing.DAL.Repository.Interfaces
+{
+    public interface IGenericRepository<T> where T : BaseEntity
+    {
+        Task<T?> GetByIdAsync(int id, CancellationToken ct = default);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> AddAsync(T entity, CancellationToken ct = default);
+        Task UpdateAsync(T entity, CancellationToken ct = default);
+        Task DeleteAsync(T entity, CancellationToken ct = default);
+        Task<T?> GetEntityWithSpecification(ISpecification<T> specification);
+        Task AddRangeAsync(IEnumerable<T> entities, CancellationToken ct = default);
+        Task<IEnumerable<T>> ListAsync(ISpecification<T> specification);
+
+        Task<(IEnumerable<T> Items, int TotalCount)> GetPagedDataAsync(
+            int pageNumber,
+            int pageSize,
+            string sortColumn,
+            string sortOrder);
+    }
+
+}
