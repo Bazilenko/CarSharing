@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CarSharing.DAL.Entity;
+using CarSharing.DAL.Specifications.Interfaces;
 
 namespace CarSharing.DAL.Repository.Interfaces
 {

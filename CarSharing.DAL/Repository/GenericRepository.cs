@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CarSharing.DAL.Context;
+using System.Linq.Dynamic.Core;
 using CarSharing.DAL.Entity;
 using CarSharing.DAL.Repository.Interfaces;
+using CarSharing.DAL.Specifications;
+using CarSharing.DAL.Specifications.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CarSharing.DAL.Repository
@@ -85,3 +88,4 @@ namespace CarSharing.DAL.Repository
         }
 
     }
+}
