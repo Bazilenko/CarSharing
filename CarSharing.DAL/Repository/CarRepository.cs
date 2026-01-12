@@ -23,5 +23,13 @@ namespace CarSharing.DAL.Repository
                 .Include(c => c.Host)        
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
+
+        public async Task<IEnumerable<Car>> GetAllCars()
+        {
+            return await _dbSet
+                .Include(c => c.Images)
+                .Include(c => c.Host)
+                .ToListAsync();
+        }
     }
 }

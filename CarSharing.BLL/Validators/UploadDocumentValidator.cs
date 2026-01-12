@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CarSharing.BLL.DTOs.Document;
+using FluentValidation;
 
 namespace CarSharing.BLL.Validators
 {

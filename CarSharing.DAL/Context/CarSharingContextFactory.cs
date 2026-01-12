@@ -15,7 +15,7 @@ namespace CarSharing.DAL.Context
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
             
-            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=CarSharing;Trusted_Connection=True;MultipleActiveResultSets=true");
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=CarSharingDb;Trusted_Connection=True;MultipleActiveResultSets=true");
 
             return new AppDbContext(optionsBuilder.Options);
         }

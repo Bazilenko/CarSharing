@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarSharing.BLL.DTOs
+namespace CarSharing.BLL.DTOs.Car
 {
     public class CreateCarDto
     {
@@ -17,6 +17,7 @@ namespace CarSharing.BLL.DTOs
         public decimal PricePerDay { get; set; }
         public bool IsPetFriendly { get; set; }
         public string AddressText { get; set; }
-        // Фото зазвичай передаються окремо через List<IFormFile> у контролері
+        public string BodyType { get; set; }
+        public string FuelType { get; set; }
     }
 }

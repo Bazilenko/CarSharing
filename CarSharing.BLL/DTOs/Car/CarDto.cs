@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CarSharing.BLL.DTOs.User;
 
-namespace CarSharing.BLL.DTOs
+namespace CarSharing.BLL.DTOs.Car
 {
     public class CarDto
     {

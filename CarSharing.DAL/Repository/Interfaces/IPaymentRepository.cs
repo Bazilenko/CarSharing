@@ -7,10 +7,10 @@ using CarSharing.DAL.Entity;
 
 namespace CarSharing.DAL.Repository.Interfaces
 {
-    public interface ICarRepository : IGenericRepository<Car>
+    public interface IPaymentRepository : IGenericRepository<Payment>
     {
-        
-        Task<Car?> GetCarWithDetailsAsync(int id);
-        Task<IEnumerable<Car>> GetAllCars();
+        Task<Payment?> GetByBookingIdAsync(int bookingId);
+
+        Task<Payment?> GetByTransactionIdAsync(string transactionId);
     }
 }

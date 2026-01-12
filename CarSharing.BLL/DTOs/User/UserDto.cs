@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarSharing.BLL.DTOs
+namespace CarSharing.BLL.DTOs.User
 {
     public class UserDto
     {
@@ -13,7 +13,7 @@ namespace CarSharing.BLL.DTOs
         public string LastName { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public bool IsVerified { get; set; } // Статус KYC
+        public bool IsVerified { get; set; } 
         public string Role { get; set; }
     }
 }

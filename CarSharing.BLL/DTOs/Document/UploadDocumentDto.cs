@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace CarSharing.BLL.DTOs
+namespace CarSharing.BLL.DTOs.Document
 {
     public class UploadDocumentDto
     {

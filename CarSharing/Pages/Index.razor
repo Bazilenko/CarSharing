@@ -1,0 +1,130 @@
+﻿@page "/"
+@using CarSharing.BLL.DTOs.Car
+@inject HttpClient Http
+
+<PageTitle>Каталог авто</PageTitle>
+
+<div class="container">
+    <h1 class="mb-4 text-center">Знайди своє авто 🚗</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="input-group">
+                <input type="text"
+                       class="form-control"
+                       placeholder="Пошук за назвою (наприклад: Toyota Camry)..."
+                       @bind="searchString"
+                       @bind:event="oninput" />
+            </div>
+        </div>
+    </div>
+
+    @if (filteredCars == null)
+    {
+        <div class="text-center mt-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Завантажуємо авто...</p>
+        </div>
+    }
+    else if (!filteredCars.Any())
+    {
+        <div class="alert alert-warning text-center">
+            За вашим запитом нічого не знайдено 😕
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var car in filteredCars)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm hover-effect">
+                        <img src="@GetImageSrc(car)" class="card-img-top" alt="@car.Model"
+                             style="height: 200px; object-fit: cover;">
+
+                        <div class="card-body">
+                            <h5 class="card-title">@car.Make @car.Model</h5>
+                            <p class="card-text">
+                                <span class="badge bg-secondary me-1">@car.Year</span>
+                                <span class="badge bg-info text-dark">@car.Transmission</span>
+                            </p>
+                            <h4 class="text-success">₴@car.PricePerDay <small class="fs-6 text-muted">/ день</small></h4>
+                        </div>
+
+                        <div class="card-footer bg-white border-top-0 pb-3">
+                            <a href="/cars/@car.Id" class="btn btn-outline-primary w-100">Деталі та Бронювання</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<CarDto>? allCars;       // Всі завантажені авто
+    private List<CarDto>? filteredCars;  // Те, що бачить користувач
+    private string searchString = "";    // Рядок пошуку
+
+    private const string ApiBaseUrl = "https://localhost:7276";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Використовуємо метод контролера GET: api/cars
+            allCars = await Http.GetFromJsonAsync<List<CarDto>>($"{ApiBaseUrl}/api/cars");
+            filteredCars = allCars;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"API Error: {ex.Message}");
+            
+        }
+    }
+
+   
+    protected override void OnParametersSet()
+    {
+        FilterCars();
+    }
+
+    
+    private void FilterCars()
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            filteredCars = allCars;
+        }
+        else
+        {
+            filteredCars = allCars?
+                .Where(x => x.Make.Contains(searchString, StringComparison.OrdinalIgnoreCase)
+                         || x.Model.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+ 
+
+    public string SearchString
+    {
+        get => searchString;
+        set
+        {
+            searchString = value;
+            FilterCars();
+        }
+    }
+
+    private string GetImageSrc(CarDto car)
+    {
+        if (car.ImageUrls != null && car.ImageUrls.Any())
+        {
+            var img = car.ImageUrls.First();
+           
+            return img.StartsWith("http") ? img : $"{ApiBaseUrl}{img}";
+        }
+        return "https://via.placeholder.com/300x200?text=No+Image";
+    }
+}

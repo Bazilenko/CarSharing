@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CarSharing.BLL.DTOs
+namespace CarSharing.BLL.DTOs.Booking
 {
-    internal class UpdateBookingDto
+    public class UpdateBookingStatusDto
     {
+        public int BookingId { get; set; }
+        public bool IsApproved { get; set; } 
     }
 }
