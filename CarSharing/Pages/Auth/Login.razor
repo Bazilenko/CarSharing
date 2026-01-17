@@ -1,0 +1,92 @@
+﻿@page "/login"
+@using CarSharing.BLL.DTOs.User
+@using CarSharing.BLL.DTOs
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="logo-circle">Logo</div>
+        <h3>Вхід</h3>
+        <p class="text-muted">Увійдіть у аккаунт</p>
+
+        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                <InputText type="email" class="form-control" placeholder="Логін" @bind-Value="loginModel.Email" />
+            </div>
+
+            <div class="input-group mb-2">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <InputText type="password" class="form-control" placeholder="Пароль" @bind-Value="loginModel.Password" />
+            </div>
+
+            <div class="text-start mb-3">
+                <small class="text-muted">Забули пароль? <a href="/forgot-password" class="text-success text-decoration-none">Натисніть сюди</a></small>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger p-2 small">@errorMessage</div>
+            }
+
+            <button type="submit" class="btn btn-success w-100 mb-3" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                }
+                Увійти
+            </button>
+
+            <div class="text-center border-top pt-3">
+                <a href="/register" class="btn btn-outline-success btn-sm w-100">Зареєструватися</a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoginDto loginModel = new();
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+
+    private async Task HandleLogin()
+    {
+        isSubmitting = true;
+        errorMessage = "";
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7276/api/auth/login", loginModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+                if (result != null && !string.IsNullOrEmpty(result.Token))
+                {
+                    await JS.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+                    Navigation.NavigateTo("/", forceLoad: true);
+                }
+                else
+                {
+                    errorMessage = "Помилка отримання токену.";
+                }
+            }
+            else
+            {
+                errorMessage = "Невірний логін або пароль.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Помилка зв'язку з сервером.";
+            Console.WriteLine($"Login error: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

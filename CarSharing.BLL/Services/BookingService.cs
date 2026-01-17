@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using CarSharing.BLL.DTOs.Booking;
+using CarSharing.BLL.Exceptions;
 using CarSharing.BLL.Services.Interfaces;
 using CarSharing.DAL.Entity;
 using CarSharing.DAL.Repository.Interfaces;
@@ -23,6 +24,7 @@ namespace CarSharing.BLL.Services
             _carRepository = carRepository;
             _mapper = mapper;
         }
+
 
         public async Task<BookingDto> CreateBookingAsync(CreateBookingDto dto, int renterId)
         {
@@ -55,6 +57,18 @@ namespace CarSharing.BLL.Services
         {
             var bookings = await _bookingRepository.GetBookingsByUserIdAsync(userId);
             return _mapper.Map<IEnumerable<BookingDto>>(bookings);
+        }
+
+        public async Task<BookingDto> CancelBooking(int bookingId)
+        {
+            var booking = await _bookingRepository.GetByIdAsync(bookingId);
+
+            if (booking == null)
+                throw new NotFoundException($"Booking not found!");
+            await _bookingRepository.DeleteAsync(booking);
+
+            return _mapper.Map<BookingDto>(booking);
+
         }
     }
 }

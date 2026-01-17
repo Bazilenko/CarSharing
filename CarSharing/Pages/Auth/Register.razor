@@ -1,0 +1,141 @@
+﻿@page "/register"
+@using CarSharing.BLL.DTOs.User
+@using CarSharing.BLL.DTOs
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="auth-container">
+    <div class="auth-card shadow">
+        <div class="logo-circle">Logo</div>
+
+        <h3 class="mb-1">Реєстрація</h3>
+        <p class="text-muted mb-4">Створіть новий аккаунт</p>
+
+        <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+            <DataAnnotationsValidator />
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <InputText class="form-control" placeholder="Ім'я" @bind-Value="registerModel.FirstName" />
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <InputText class="form-control" placeholder="Прізвище" @bind-Value="registerModel.LastName" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <InputText type="email" class="form-control" placeholder="Email" @bind-Value="registerModel.Email" />
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <InputText type="password" class="form-control" placeholder="Пароль" @bind-Value="registerModel.Password" />
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <InputText type="tel" class="form-control" placeholder="Номер телефону" @bind-Value="registerModel.PhoneNumber" />
+            </div>
+
+            <div class="mb-4 text-start">
+                <label class="form-label small text-muted mb-1">Дата народження</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    <InputDate class="form-control" @bind-Value="registerModel.BirthDate" />
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger p-2 small mb-3">
+                    @foreach (var error in errorMessage.Split(". "))
+                    {
+                        <div>• @error</div>
+                    }
+                </div>
+            }
+
+            <button type="submit" class="btn btn-success w-100 mb-3 py-2" disabled="@isSubmitting">
+                @if (isSubmitting)
+                {
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Обробка...</span>
+                }
+                else
+                {
+                    <span>Зареєструватися</span>
+                }
+            </button>
+
+            <div class="text-center border-top pt-3">
+                <a href="/login" class="btn btn-outline-secondary btn-sm w-100">Вже є аккаунт? Увійти</a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    public class ValidationProblemDetails
+    {
+        public Dictionary<string, string[]> Errors { get; set; } = new();
+    }
+    private RegisterUserDto registerModel = new() { BirthDate = DateTime.Now.AddYears(-18) };
+    private bool isSubmitting = false;
+    private string errorMessage = "";
+
+    private async Task HandleRegister()
+    {
+        isSubmitting = true;
+        errorMessage = "";
+
+        try
+        {
+            // Використання відносного шляху, якщо HttpClient налаштований у Program.cs
+            var response = await Http.PostAsJsonAsync("https://localhost:7276/api/auth/register", registerModel);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                try
+                {
+                    // Намагаємось розпарсити відповідь як об'єкт з помилками валідації
+                    var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+                    if (problemDetails?.Errors != null)
+                    {
+                        // З'єднуємо повідомлення через символ "|" для легкого розбиття в UI
+                        errorMessage = string.Join("|", problemDetails.Errors.SelectMany(x => x.Value));
+                    }
+                    else
+                    {
+                        // Якщо сервер надіслав помилку не у форматі валідації
+                        errorMessage = await response.Content.ReadAsStringAsync();
+                    }
+                }
+                catch
+                {
+                    // Якщо сталася критична помилка (наприклад, 500) і прийшов HTML замість JSON
+                    errorMessage = "Сталася помилка на сервері. Спробуйте пізніше.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Помилка з'єднання з сервером.";
+            Console.WriteLine($"Registration error: {ex.Message}");
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

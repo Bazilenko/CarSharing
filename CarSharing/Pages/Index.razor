@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/list"
 @using CarSharing.BLL.DTOs.Car
 @inject HttpClient Http
 
@@ -92,7 +92,7 @@
     
     private void FilterCars()
     {
-        if (string.IsNullOrWhiteSpace(searchString))
+        if (string.IsNullOrWhiteSpace(searchString))    
         {
             filteredCars = allCars;
         }

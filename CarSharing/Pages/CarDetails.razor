@@ -1,0 +1,144 @@
+﻿@page "/cars/{Id:int}"
+@using CarSharing.BLL.DTOs.Car
+@using CarSharing.BLL.DTOs.Booking
+@inject HttpClient Http
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    @if (car == null)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p>Завантаження даних про авто...</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <img src="@GetImageSrc(car)" class="img-fluid rounded shadow" alt="@car.Model" style="max-height: 400px; width: 100%; object-fit: cover;">
+            </div>
+            <div class="col-md-6">
+                <h2>@car.Make @car.Model (@car.Year)</h2>
+                <p class="badge bg-info text-dark">@car.Transmission</p>
+                <h3 class="text-success">₴@car.PricePerDay <small class="text-muted fs-6">/ день</small></h3>
+
+                <div class="card p-4 mt-4 border-primary shadow-sm">
+                    <h5 class="card-title">Оберіть період оренди</h5>
+                    <hr />
+                    <div class="mb-3">
+                        <label class="form-label">Дата початку:</label>
+                        <input type="date" class="form-control" @bind="bookingDto.StartTime" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Дата завершення:</label>
+                        <input type="date" class="form-control" @bind="bookingDto.EndTime" min="@bookingDto.StartTime.ToString("yyyy-MM-dd")" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+
+                    <button class="btn btn-primary btn-lg w-100 mt-2" @onclick="HandleBooking" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span> Обробка...</span>
+                        }
+                        else
+                        {
+                            <span>Підтвердити бронювання</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private CarDto? car;
+    private CreateBookingDto bookingDto = new() { StartTime = DateTime.Now.AddDays(1), EndTime = DateTime.Now.AddDays(2) };
+    private string errorMessage = "";
+    private bool isSubmitting = false;
+
+    private const string ApiBaseUrl = "https://localhost:7276";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            car = await Http.GetFromJsonAsync<CarDto>($"{ApiBaseUrl}/api/cars/{Id}");
+            bookingDto.CarId = Id;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Не вдалося завантажити дані про автомобіль.";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+@inject IJSRuntime JS
+@using System.Net.Http.Headers
+
+private async Task HandleBooking()
+    {
+        isSubmitting = true;
+        errorMessage = "";
+
+        try
+        {
+            
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                errorMessage = "Будь ласка, увійдіть у систему, щоб забронювати авто.";
+                Navigation.NavigateTo("/login");
+                return;
+            }
+
+            
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:7276/api/Booking");
+
+            
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+         
+            request.Content = JsonContent.Create(bookingDto);
+
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Navigation.NavigateTo("/my-bookings");
+            }
+            else
+            {
+               
+                errorMessage = await response.Content.ReadAsStringAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Помилка з'єднання з сервером.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private string GetImageSrc(CarDto car)
+    {
+        if (car.ImageUrls != null && car.ImageUrls.Any())
+        {
+            var img = car.ImageUrls.First();
+            return img.StartsWith("http") ? img : $"{ApiBaseUrl}{img}";
+        }
+        return "https://via.placeholder.com/300x200?text=No+Image";
+    }
+}

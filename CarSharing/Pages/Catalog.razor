@@ -1,0 +1,126 @@
+﻿@page "/catalog"
+
+<link href ="/css/Catalog.css" rel="stylesheet" />
+<header class="header">
+    <div class="logo">
+        <div class="logo-icon">🚗</div>
+        <span>Carsharing P2P</span>
+    </div>
+    <div class="nav-buttons">
+        <button class="sign-in-btn">👤 Sign In</button>
+        <button class="menu-btn">☰</button>
+    </div>
+</header>
+
+<div class="container">
+    <aside class="sidebar">
+        <div class="map-section">
+            <div class="map-placeholder">🗺️ Карта</div>
+            <button class="show-map-btn" style="width:100%; background:#0073b6; color:white; border:none; padding:10px; border-radius:8px;">Show On Map</button>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Car Type</div>
+            <div class="filter-options">
+                <button class="filter-btn">Mini</button>
+                <button class="filter-btn active">Economy</button>
+                <button class="filter-btn">SUV</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Transmission</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <label><input type="checkbox" checked /> Automatic</label>
+                <label><input type="checkbox" /> Manual</label>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="search-bar">
+            <div class="search-field">
+                <label>Location</label>
+                <input type="text" value="Malta International Airport" />
+            </div>
+            <div class="search-field">
+                <label>Pick-up Date</label>
+                <input type="date" />
+            </div>
+            <button class="view-deal-btn" style="height:45px; width:45px; border-radius:50%;">🔍</button>
+        </div>
+
+        <div class="car-grid">
+            @if (Cars == null || !Cars.Any())
+            {
+                <p>Завантаження автомобілів...</p>
+            }
+            else
+            {
+                @foreach (var car in Cars)
+                {
+                    <div class="car-card">
+                        <div class="car-header">
+                            <div>
+                                <div class="car-title">@car.Make @car.Model</div>
+                                <div class="car-subtitle">@car.Year year · @car.Transmission</div>
+                            </div>
+                            <div class="rental-conditions">ℹ️ Details</div>
+                        </div>
+
+                        
+                        <img src="@(car.ImageUrls?.FirstOrDefault() ?? "images/no-car.png")"
+                             alt="@car.Model"
+                             class="car-image" />
+
+                        <div class="car-specs">
+                            <div class="spec-item">⚙️ @car.Transmission</div>
+                            @if (car.IsPetFriendly)
+                            {
+                                <div class="spec-item">🐾 Pet Friendly</div>
+                            }
+                            <div class="spec-item">📍 @car.AddressText</div>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="price-info">
+                                <div class="current-price">@car.PricePerDay.ToString("F2") €</div>
+                                <div class="price-per-day">Price per day</div>
+                            </div>
+                            
+                            <button class="view-deal-btn" @onclick="() => GoToDetails(car.Id)">
+                                View Deal
+                            </button>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </main>
+</div>
+@using CarSharing.BLL.DTOs.Car
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@code {
+    private List<CarDto> Cars = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        try
+        {
+            
+            Cars = await Http.GetFromJsonAsync<List<CarDto>>("api/cars");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка завантаження: {ex.Message}");
+            Cars = new List<CarDto>();
+        }
+    }
+    private void GoToDetails(int id)
+    {
+        
+        Navigation.NavigateTo($"/cars/{id}");
+    }
+}

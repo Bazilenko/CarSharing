@@ -31,4 +31,9 @@
     <ProjectReference Include="..\CarSharing.DAL\CarSharing.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\css\Login.css" />
+    <None Include="wwwroot\css\Register.css" />
+  </ItemGroup>
+
 </Project>

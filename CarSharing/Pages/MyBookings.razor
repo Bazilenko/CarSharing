@@ -1,0 +1,104 @@
+﻿@page "/my-bookings"
+@using CarSharing.BLL.DTOs.Booking
+@inject HttpClient Http
+
+<div class="container mt-4">
+    <h3>Мої бронювання</h3>
+
+    @if (bookings == null)
+    {
+        <p>Завантаження...</p>
+    }
+    else if (!bookings.Any())
+    {
+        <div class="alert alert-info">У вас ще немає активних бронювань.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Авто</th>
+                        <th>З</th>
+                        <th>По</th>
+                        <th>Ціна</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in bookings)
+                    {
+                        <tr>
+                            <td>@b.CarTitle</td>
+                            <td>@b.StartTime.ToShortDateString()</td>
+                            <td>@b.EndTime.ToShortDateString()</td>
+                            <td>₴@b.TotalPrice</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" @onclick="() => CancelBooking(b.Id)">
+                                    Скасувати
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+@inject IJSRuntime JS
+@using System.Net.Http.Headers
+@code {
+    private List<BookingDto>? bookings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBookings();
+    }
+
+    private async Task LoadBookings()
+    {
+        try
+        {
+            // 1. Отримуємо токен (припустимо, він збережений у LocalStorage під ключем "authToken")
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                // Якщо токена немає, перенаправляємо на сторінку логіну
+                // Navigation.NavigateTo("/login");
+                return;
+            }
+
+            // 2. Створюємо запит вручну, щоб додати заголовок
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7276/api/booking/my");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                bookings = await response.Content.ReadFromJsonAsync<List<BookingDto>>();
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                Console.WriteLine("Помилка: Ви не авторизовані або термін дії токена вичерпано.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка завантаження: {ex.Message}");
+        }
+    }
+
+    private async Task CancelBooking(int id)
+    {
+        var confirmed = await Task.FromResult(true); // Тут можна додати JS Interop для JS confirm()
+
+        var response = await Http.DeleteAsync($"https://localhost:7276/api/bookings/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            await LoadBookings(); // Оновлюємо список
+        }
+    }
+}

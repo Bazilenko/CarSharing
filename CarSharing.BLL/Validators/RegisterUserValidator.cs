@@ -22,14 +22,14 @@ namespace CarSharing.BLL.Validators
 
             RuleFor(x => x.LastName)
                 .NotEmpty().WithMessage("Прізвище обов'язкове")
-                .MaximumLength(50);
+                .MaximumLength(50).WithMessage("Прізвище не може бути довшим за 50 символів");
 
             RuleFor(x => x.Password)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Пароль є обов'язковим")
                 .MinimumLength(6).WithMessage("Пароль має бути не менше 6 символів");
 
             RuleFor(x => x.PhoneNumber)
-                .NotEmpty()
+                .NotEmpty().WithMessage("Телефон є обов'язковим")
                 .Matches(@"^\+?380\d{9}$").WithMessage("Телефон має бути у форматі +380xxxxxxxxx");
 
             

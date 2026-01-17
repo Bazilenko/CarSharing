@@ -11,5 +11,6 @@ namespace CarSharing.BLL.Services.Interfaces
     {
         Task<BookingDto> CreateBookingAsync(CreateBookingDto dto, int renterId);
         Task<IEnumerable<BookingDto>> GetMyBookingsAsync(int userId);
+        Task<BookingDto> CancelBooking(int bookingId);
     }
 }
