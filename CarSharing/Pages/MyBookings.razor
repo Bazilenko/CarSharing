@@ -1,53 +1,399 @@
 ﻿@page "/my-bookings"
 @using CarSharing.BLL.DTOs.Booking
 @inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+@using System.Net.Http.Headers
 
-<div class="container mt-4">
-    <h3>Мої бронювання</h3>
+<link href="css/app.css" rel="stylesheet" />
+
+<style>
+    /* MyBookings Page Styles */
+    .navbar {
+        background: linear-gradient(90deg, #0077B6 0%, #005A8D 100%);
+        padding: 16px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-nav {
+        display: flex;
+        gap: 32px;
+    }
+
+    .nav-link {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+        color: white;
+    }
+
+    .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .btn-signin {
+        color: white;
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    /* Page Content */
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 60px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .page-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1A1A1A;
+    }
+
+    .btn-browse {
+        background: #0077B6;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-browse:hover {
+        background: #005A8D;
+    }
+
+    /* Booking Cards */
+    .bookings-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        gap: 24px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s;
+    }
+
+    .booking-card:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .booking-image {
+        width: 200px;
+        height: 120px;
+        background: #F5F8FB;
+        border-radius: 8px;
+        object-fit: contain;
+    }
+
+    .booking-info {
+        flex: 1;
+    }
+
+    .booking-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1A1A1A;
+        margin-bottom: 8px;
+    }
+
+    .booking-dates {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 12px;
+    }
+
+    .date-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .date-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+    }
+
+    .date-value {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .booking-status {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #E8F9EF;
+        color: #28A745;
+    }
+
+    .status-completed {
+        background: #E8F4FC;
+        color: #0077B6;
+    }
+
+    .status-cancelled {
+        background: #FEE2E2;
+        color: #DC3545;
+    }
+
+    .booking-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: space-between;
+    }
+
+    .booking-price {
+        text-align: right;
+    }
+
+    .price-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0077B6;
+    }
+
+    .price-label {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .btn-cancel {
+        background: none;
+        border: 1px solid #DC3545;
+        color: #DC3545;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-cancel:hover {
+        background: #DC3545;
+        color: white;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 80px 40px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .empty-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+    }
+
+    .empty-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: #1A1A1A;
+        margin-bottom: 12px;
+    }
+
+    .empty-desc {
+        color: #666;
+        margin-bottom: 24px;
+    }
+
+    /* Loading */
+    .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+        color: #666;
+    }
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #E0E0E0;
+        border-top-color: #0077B6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .navbar {
+            padding: 16px 20px;
+        }
+
+        .navbar-nav {
+            display: none;
+        }
+
+        .page-container {
+            padding: 24px 20px;
+        }
+
+        .booking-card {
+            flex-direction: column;
+        }
+
+        .booking-image {
+            width: 100%;
+            height: 160px;
+        }
+
+        .booking-actions {
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 16px;
+        }
+    }
+</style>
+
+<!-- Header -->
+<header class="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="logo-icon">🚗</div>
+        <span>Carsharing P2P</span>
+    </a>
+    <nav class="navbar-nav">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/catalog" class="nav-link">Catalog</a>
+        <a href="/my-bookings" class="nav-link active">My Bookings</a>
+    </nav>
+    <div class="navbar-actions">
+        <a href="/login" class="btn-signin">👤 Sign In</a>
+    </div>
+</header>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">My Bookings</h1>
+        <a href="/catalog" class="btn-browse">
+            🚗 Browse Cars
+        </a>
+    </div>
 
     @if (bookings == null)
     {
-        <p>Завантаження...</p>
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading your bookings...</p>
+        </div>
     }
     else if (!bookings.Any())
     {
-        <div class="alert alert-info">У вас ще немає активних бронювань.</div>
+        <div class="empty-state">
+            <div class="empty-icon">🚗</div>
+            <h2 class="empty-title">No bookings yet</h2>
+            <p class="empty-desc">You haven't made any bookings. Start exploring our car collection!</p>
+            <a href="/catalog" class="btn-browse" style="display: inline-flex;">
+                Browse Available Cars
+            </a>
+        </div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Авто</th>
-                        <th>З</th>
-                        <th>По</th>
-                        <th>Ціна</th>
-                        <th>Дії</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var b in bookings)
-                    {
-                        <tr>
-                            <td>@b.CarTitle</td>
-                            <td>@b.StartTime.ToShortDateString()</td>
-                            <td>@b.EndTime.ToShortDateString()</td>
-                            <td>₴@b.TotalPrice</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm" @onclick="() => CancelBooking(b.Id)">
-                                    Скасувати
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div class="bookings-grid">
+            @foreach (var b in bookings)
+            {
+                <div class="booking-card">
+                    <img src="images/car-hero.png" alt="Car" class="booking-image" />
+                    <div class="booking-info">
+                        <h3 class="booking-title">@b.CarTitle</h3>
+                        <div class="booking-dates">
+                            <div class="date-item">
+                                <span class="date-label">Pick-up</span>
+                                <span class="date-value">@b.StartTime.ToString("MMM dd, yyyy")</span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-label">Drop-off</span>
+                                <span class="date-value">@b.EndTime.ToString("MMM dd, yyyy")</span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-label">Duration</span>
+                                <span class="date-value">@((b.EndTime - b.StartTime).Days) days</span>
+                            </div>
+                        </div>
+                        <span class="booking-status status-active">Active</span>
+                    </div>
+                    <div class="booking-actions">
+                        <div class="booking-price">
+                            <div class="price-value">$@b.TotalPrice.ToString("F2")</div>
+                            <div class="price-label">Total paid</div>
+                        </div>
+                        <button class="btn-cancel" @onclick="() => CancelBooking(b.Id)">
+                            Cancel Booking
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     }
 </div>
-@inject IJSRuntime JS
-@using System.Net.Http.Headers
+
 @code {
     private List<BookingDto>? bookings;
 
@@ -60,17 +406,14 @@
     {
         try
         {
-            // 1. Отримуємо токен (припустимо, він збережений у LocalStorage під ключем "authToken")
             var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
 
             if (string.IsNullOrEmpty(token))
             {
-                // Якщо токена немає, перенаправляємо на сторінку логіну
-                // Navigation.NavigateTo("/login");
+                Navigation.NavigateTo("/login");
                 return;
             }
 
-            // 2. Створюємо запит вручну, щоб додати заголовок
             var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7276/api/booking/my");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
@@ -82,23 +425,33 @@
             }
             else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                Console.WriteLine("Помилка: Ви не авторизовані або термін дії токена вичерпано.");
+                Navigation.NavigateTo("/login");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Помилка завантаження: {ex.Message}");
+            Console.WriteLine($"Error loading bookings: {ex.Message}");
+            bookings = new List<BookingDto>();
         }
     }
 
     private async Task CancelBooking(int id)
     {
-        var confirmed = await Task.FromResult(true); // Тут можна додати JS Interop для JS confirm()
-
-        var response = await Http.DeleteAsync($"https://localhost:7276/api/bookings/{id}");
-        if (response.IsSuccessStatusCode)
+        try
         {
-            await LoadBookings(); // Оновлюємо список
+            var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"https://localhost:7276/api/bookings/{id}");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await Http.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadBookings();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error cancelling booking: {ex.Message}");
         }
     }
 }

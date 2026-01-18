@@ -1,59 +1,288 @@
 ﻿@page "/list"
 @using CarSharing.BLL.DTOs.Car
 @inject HttpClient Http
+@inject NavigationManager Navigation
 
-<PageTitle>Каталог авто</PageTitle>
+<link href="css/app.css" rel="stylesheet" />
 
-<div class="container">
-    <h1 class="mb-4 text-center">Знайди своє авто 🚗</h1>
+<style>
+    /* List Page Styles */
+    .navbar {
+        background: linear-gradient(90deg, #0077B6 0%, #005A8D 100%);
+        padding: 16px 60px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <div class="input-group">
-                <input type="text"
-                       class="form-control"
-                       placeholder="Пошук за назвою (наприклад: Toyota Camry)..."
-                       @bind="searchString"
-                       @bind:event="oninput" />
-            </div>
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .logo-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .navbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .btn-signin {
+        color: white;
+        font-size: 15px;
+        font-weight: 500;
+        text-decoration: none;
+    }
+
+    .page-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 60px;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .page-title {
+        font-size: 40px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin-bottom: 16px;
+    }
+
+    .search-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 16px 24px;
+        border: 1px solid #E0E0E0;
+        border-radius: 12px;
+        font-size: 16px;
+        background: white;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #0077B6;
+        box-shadow: 0 2px 12px rgba(0, 119, 182, 0.15);
+    }
+
+    .cars-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .car-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        transition: all 0.3s;
+    }
+
+    .car-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .car-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: #F5F8FB;
+    }
+
+    .car-content {
+        padding: 20px;
+    }
+
+    .car-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1A1A1A;
+        margin-bottom: 8px;
+    }
+
+    .car-meta {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .meta-badge {
+        padding: 4px 10px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .meta-badge.year {
+        background: #E0E0E0;
+        color: #666;
+    }
+
+    .meta-badge.transmission {
+        background: #E8F4FC;
+        color: #0077B6;
+    }
+
+    .car-price {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0077B6;
+        margin-bottom: 16px;
+    }
+
+    .car-price span {
+        font-size: 14px;
+        font-weight: 400;
+        color: #999;
+    }
+
+    .btn-details {
+        width: 100%;
+        padding: 12px;
+        background: none;
+        border: 2px solid #0077B6;
+        color: #0077B6;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-details:hover {
+        background: #0077B6;
+        color: white;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 60px;
+        color: #666;
+    }
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid #E0E0E0;
+        border-top-color: #0077B6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: #FFF9E6;
+        border-radius: 12px;
+        color: #666;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 992px) {
+        .cars-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .page-container {
+            padding: 24px 20px;
+        }
+
+        .cars-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-title {
+            font-size: 28px;
+        }
+    }
+</style>
+
+<PageTitle>Car Catalog</PageTitle>
+
+<!-- Header -->
+<header class="navbar">
+    <a href="/" class="navbar-brand">
+        <div class="logo-icon">🚗</div>
+        <span>Carsharing P2P</span>
+    </a>
+    <div class="navbar-actions">
+        <a href="/login" class="btn-signin">👤 Sign In</a>
+    </div>
+</header>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Find Your Perfect Car 🚗</h1>
+        <div class="search-wrapper">
+            <input type="text"
+                   class="search-input"
+                   placeholder="Search by make or model (e.g., Toyota Camry)..."
+                   @bind="SearchString"
+                   @bind:event="oninput" />
         </div>
     </div>
 
     @if (filteredCars == null)
     {
-        <div class="text-center mt-5">
-            <div class="spinner-border text-primary" role="status"></div>
-            <p class="mt-2">Завантажуємо авто...</p>
+        <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading cars...</p>
         </div>
     }
     else if (!filteredCars.Any())
     {
-        <div class="alert alert-warning text-center">
-            За вашим запитом нічого не знайдено 😕
+        <div class="empty-state">
+            <p>No cars found matching your search 😕</p>
         </div>
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="cars-grid">
             @foreach (var car in filteredCars)
             {
-                <div class="col">
-                    <div class="card h-100 shadow-sm hover-effect">
-                        <img src="@GetImageSrc(car)" class="card-img-top" alt="@car.Model"
-                             style="height: 200px; object-fit: cover;">
-
-                        <div class="card-body">
-                            <h5 class="card-title">@car.Make @car.Model</h5>
-                            <p class="card-text">
-                                <span class="badge bg-secondary me-1">@car.Year</span>
-                                <span class="badge bg-info text-dark">@car.Transmission</span>
-                            </p>
-                            <h4 class="text-success">₴@car.PricePerDay <small class="fs-6 text-muted">/ день</small></h4>
+                <div class="car-card">
+                    <img src="@GetImageSrc(car)" class="car-image" alt="@car.Model" />
+                    <div class="car-content">
+                        <h3 class="car-title">@car.Make @car.Model</h3>
+                        <div class="car-meta">
+                            <span class="meta-badge year">@car.Year</span>
+                            <span class="meta-badge transmission">@car.Transmission</span>
                         </div>
-
-                        <div class="card-footer bg-white border-top-0 pb-3">
-                            <a href="/cars/@car.Id" class="btn btn-outline-primary w-100">Деталі та Бронювання</a>
-                        </div>
+                        <div class="car-price">$@car.PricePerDay <span>/ day</span></div>
+                        <a href="/cars/@car.Id" class="btn-details">View Details & Book</a>
                     </div>
                 </div>
             }
@@ -62,9 +291,9 @@
 </div>
 
 @code {
-    private List<CarDto>? allCars;       // Всі завантажені авто
-    private List<CarDto>? filteredCars;  // Те, що бачить користувач
-    private string searchString = "";    // Рядок пошуку
+    private List<CarDto>? allCars;
+    private List<CarDto>? filteredCars;
+    private string searchString = "";
 
     private const string ApiBaseUrl = "https://localhost:7276";
 
@@ -72,27 +301,18 @@
     {
         try
         {
-            // Використовуємо метод контролера GET: api/cars
             allCars = await Http.GetFromJsonAsync<List<CarDto>>($"{ApiBaseUrl}/api/cars");
             filteredCars = allCars;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"API Error: {ex.Message}");
-            
         }
     }
 
-   
-    protected override void OnParametersSet()
-    {
-        FilterCars();
-    }
-
-    
     private void FilterCars()
     {
-        if (string.IsNullOrWhiteSpace(searchString))    
+        if (string.IsNullOrWhiteSpace(searchString))
         {
             filteredCars = allCars;
         }
@@ -104,8 +324,6 @@
                 .ToList();
         }
     }
-
- 
 
     public string SearchString
     {
@@ -122,7 +340,6 @@
         if (car.ImageUrls != null && car.ImageUrls.Any())
         {
             var img = car.ImageUrls.First();
-           
             return img.StartsWith("http") ? img : $"{ApiBaseUrl}{img}";
         }
         return "https://via.placeholder.com/300x200?text=No+Image";

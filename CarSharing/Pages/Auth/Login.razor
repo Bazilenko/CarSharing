@@ -5,44 +5,284 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="logo-circle">Logo</div>
-        <h3>Вхід</h3>
-        <p class="text-muted">Увійдіть у аккаунт</p>
+<link href="css/app.css" rel="stylesheet" />
 
-        <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-            <div class="input-group mb-3">
-                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <InputText type="email" class="form-control" placeholder="Логін" @bind-Value="loginModel.Email" />
+<style>
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        background: linear-gradient(135deg, #E8F4FC 0%, #F5F8FB 100%);
+    }
+
+    .auth-sidebar {
+        width: 45%;
+        background: linear-gradient(135deg, #0077B6 0%, #005A8D 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        color: white;
+    }
+
+    .auth-sidebar-content {
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+        font-size: 40px;
+    }
+
+    .auth-sidebar h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .auth-sidebar p {
+        font-size: 16px;
+        opacity: 0.8;
+        line-height: 1.6;
+    }
+
+    .auth-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: white;
+        border-radius: 16px;
+        padding: 48px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .auth-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        font-size: 15px;
+        color: #666;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1px solid #E0E0E0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #0077B6;
+        box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+    }
+
+    .form-input.error {
+        border-color: #DC3545;
+    }
+
+    .forgot-link {
+        display: block;
+        text-align: right;
+        color: #0077B6;
+        font-size: 14px;
+        margin-bottom: 24px;
+        text-decoration: none;
+    }
+
+    .forgot-link:hover {
+        text-decoration: underline;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 16px;
+        background: #0077B6;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-login:hover {
+        background: #005A8D;
+    }
+
+    .btn-login:disabled {
+        background: #CCC;
+        cursor: not-allowed;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin: 24px 0;
+        color: #999;
+        font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #E0E0E0;
+    }
+
+    .register-link {
+        text-align: center;
+        font-size: 15px;
+        color: #666;
+    }
+
+    .register-link a {
+        color: #0077B6;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background: #FEE2E2;
+        color: #DC3545;
+        border: 1px solid #FCA5A5;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 992px) {
+        .auth-sidebar {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .auth-card {
+            padding: 32px 24px;
+        }
+    }
+</style>
+
+<div class="auth-page">
+    <div class="auth-sidebar">
+        <div class="auth-sidebar-content">
+            <div class="auth-logo">🚗</div>
+            <h1>Welcome Back!</h1>
+            <p>Sign in to access your bookings, manage your rentals, and explore our wide selection of cars.</p>
+        </div>
+    </div>
+
+    <div class="auth-main">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2 class="auth-title">Sign In</h2>
+                <p class="auth-subtitle">Enter your credentials to continue</p>
             </div>
 
-            <div class="input-group mb-2">
-                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                <InputText type="password" class="form-control" placeholder="Пароль" @bind-Value="loginModel.Password" />
-            </div>
-
-            <div class="text-start mb-3">
-                <small class="text-muted">Забули пароль? <a href="/forgot-password" class="text-success text-decoration-none">Натисніть сюди</a></small>
-            </div>
-
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger p-2 small">@errorMessage</div>
-            }
-
-            <button type="submit" class="btn btn-success w-100 mb-3" disabled="@isSubmitting">
-                @if (isSubmitting)
+            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                @if (!string.IsNullOrEmpty(errorMessage))
                 {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <div class="alert alert-error">@errorMessage</div>
                 }
-                Увійти
-            </button>
 
-            <div class="text-center border-top pt-3">
-                <a href="/register" class="btn btn-outline-success btn-sm w-100">Зареєструватися</a>
-            </div>
-        </EditForm>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <InputText type="email" class="form-input" placeholder="you@example.com" @bind-Value="loginModel.Email" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <InputText type="password" class="form-input" placeholder="Enter your password" @bind-Value="loginModel.Password" />
+                </div>
+
+                <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+
+                <button type="submit" class="btn-login" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                        <span>Signing in...</span>
+                    }
+                    else
+                    {
+                        <span>Sign In</span>
+                    }
+                </button>
+
+                <div class="divider">or</div>
+
+                <p class="register-link">
+                    Don't have an account? <a href="/register">Create one</a>
+                </p>
+            </EditForm>
+        </div>
     </div>
 </div>
 
@@ -71,17 +311,17 @@
                 }
                 else
                 {
-                    errorMessage = "Помилка отримання токену.";
+                    errorMessage = "Failed to get authentication token.";
                 }
             }
             else
             {
-                errorMessage = "Невірний логін або пароль.";
+                errorMessage = "Invalid email or password.";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Помилка зв'язку з сервером.";
+            errorMessage = "Connection error. Please try again.";
             Console.WriteLine($"Login error: {ex.Message}");
         }
         finally

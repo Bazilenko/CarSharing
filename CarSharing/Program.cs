@@ -35,7 +35,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddAuthentication(options =>
 {
-    // Обов'язково вказуємо дефолтні схеми!
+    
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -99,7 +99,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "CarSharing API", Version = "v1" });
 
-    // 1. Визначаємо, як вводити токен (додаємо кнопку "Authorize")
+    
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Введіть токен доступу. Приклад: 'Bearer eyJhb...'",
@@ -109,7 +109,7 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // 2. Кажемо Swagger-у використовувати цю схему для всіх запитів
+    
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {

@@ -4,80 +4,282 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<div class="auth-container">
-    <div class="auth-card shadow">
-        <div class="logo-circle">Logo</div>
+<link href="css/app.css" rel="stylesheet" />
 
-        <h3 class="mb-1">Реєстрація</h3>
-        <p class="text-muted mb-4">Створіть новий аккаунт</p>
+<style>
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        background: linear-gradient(135deg, #E8F4FC 0%, #F5F8FB 100%);
+    }
 
-        <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
-            <DataAnnotationsValidator />
+    .auth-sidebar {
+        width: 40%;
+        background: linear-gradient(135deg, #0077B6 0%, #005A8D 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        color: white;
+    }
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <InputText class="form-control" placeholder="Ім'я" @bind-Value="registerModel.FirstName" />
+    .auth-sidebar-content {
+        max-width: 360px;
+        text-align: center;
+    }
+
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+        font-size: 40px;
+    }
+
+    .auth-sidebar h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .auth-sidebar p {
+        font-size: 15px;
+        opacity: 0.8;
+        line-height: 1.6;
+    }
+
+    .auth-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 520px;
+        background: white;
+        border-radius: 16px;
+        padding: 40px 48px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 28px;
+    }
+
+    .auth-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1A1A1A;
+        margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+        font-size: 15px;
+        color: #666;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #E0E0E0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #0077B6;
+        box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+    }
+
+    .btn-register {
+        width: 100%;
+        padding: 14px;
+        background: #0077B6;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .btn-register:hover {
+        background: #005A8D;
+    }
+
+    .btn-register:disabled {
+        background: #CCC;
+        cursor: not-allowed;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .login-link a {
+        color: #0077B6;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background: #FEE2E2;
+        color: #DC3545;
+        border: 1px solid #FCA5A5;
+    }
+
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @@media (max-width: 992px) {
+        .auth-sidebar {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .auth-card {
+            padding: 28px 20px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="auth-page">
+    <div class="auth-sidebar">
+        <div class="auth-sidebar-content">
+            <div class="auth-logo">🚗</div>
+            <h1>Join Carsharing P2P</h1>
+            <p>Create an account to start renting cars, manage your bookings, and enjoy exclusive member benefits.</p>
+        </div>
+    </div>
+
+    <div class="auth-main">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2 class="auth-title">Create Account</h2>
+                <p class="auth-subtitle">Fill in your details to get started</p>
+            </div>
+
+            <EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+                <DataAnnotationsValidator />
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="alert alert-error">@errorMessage</div>
+                }
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <InputText class="form-input" placeholder="John" @bind-Value="registerModel.FirstName" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <InputText class="form-input" placeholder="Doe" @bind-Value="registerModel.LastName" />
                     </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-person"></i></span>
-                        <InputText class="form-control" placeholder="Прізвище" @bind-Value="registerModel.LastName" />
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <InputText type="email" class="form-input" placeholder="you@example.com" @bind-Value="registerModel.Email" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <InputText type="password" class="form-input" placeholder="Create a strong password" @bind-Value="registerModel.Password" />
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <InputText type="tel" class="form-input" placeholder="+380 XX XXX XXXX" @bind-Value="registerModel.PhoneNumber" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date of Birth</label>
+                        <InputDate class="form-input" @bind-Value="registerModel.BirthDate" />
                     </div>
                 </div>
-            </div>
 
-            <div class="input-group mb-3">
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                <InputText type="email" class="form-control" placeholder="Email" @bind-Value="registerModel.Email" />
-            </div>
-
-            <div class="input-group mb-3">
-                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                <InputText type="password" class="form-control" placeholder="Пароль" @bind-Value="registerModel.Password" />
-            </div>
-
-            <div class="input-group mb-3">
-                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
-                <InputText type="tel" class="form-control" placeholder="Номер телефону" @bind-Value="registerModel.PhoneNumber" />
-            </div>
-
-            <div class="mb-4 text-start">
-                <label class="form-label small text-muted mb-1">Дата народження</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
-                    <InputDate class="form-control" @bind-Value="registerModel.BirthDate" />
-                </div>
-            </div>
-
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div class="alert alert-danger p-2 small mb-3">
-                    @foreach (var error in errorMessage.Split(". "))
+                <button type="submit" class="btn-register" disabled="@isSubmitting">
+                    @if (isSubmitting)
                     {
-                        <div>• @error</div>
+                        <span class="spinner"></span>
+                        <span>Creating account...</span>
                     }
-                </div>
-            }
+                    else
+                    {
+                        <span>Create Account</span>
+                    }
+                </button>
 
-            <button type="submit" class="btn btn-success w-100 mb-3 py-2" disabled="@isSubmitting">
-                @if (isSubmitting)
-                {
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    <span>Обробка...</span>
-                }
-                else
-                {
-                    <span>Зареєструватися</span>
-                }
-            </button>
-
-            <div class="text-center border-top pt-3">
-                <a href="/login" class="btn btn-outline-secondary btn-sm w-100">Вже є аккаунт? Увійти</a>
-            </div>
-        </EditForm>
+                <p class="login-link">
+                    Already have an account? <a href="/login">Sign in</a>
+                </p>
+            </EditForm>
+        </div>
     </div>
 </div>
 
@@ -97,7 +299,6 @@
 
         try
         {
-            // Використання відносного шляху, якщо HttpClient налаштований у Program.cs
             var response = await Http.PostAsJsonAsync("https://localhost:7276/api/auth/register", registerModel);
 
             if (response.IsSuccessStatusCode)
@@ -108,29 +309,25 @@
             {
                 try
                 {
-                    // Намагаємось розпарсити відповідь як об'єкт з помилками валідації
                     var problemDetails = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
                     if (problemDetails?.Errors != null)
                     {
-                        // З'єднуємо повідомлення через символ "|" для легкого розбиття в UI
-                        errorMessage = string.Join("|", problemDetails.Errors.SelectMany(x => x.Value));
+                        errorMessage = string.Join(" ", problemDetails.Errors.SelectMany(x => x.Value));
                     }
                     else
                     {
-                        // Якщо сервер надіслав помилку не у форматі валідації
                         errorMessage = await response.Content.ReadAsStringAsync();
                     }
                 }
                 catch
                 {
-                    // Якщо сталася критична помилка (наприклад, 500) і прийшов HTML замість JSON
-                    errorMessage = "Сталася помилка на сервері. Спробуйте пізніше.";
+                    errorMessage = "Server error. Please try again later.";
                 }
             }
         }
         catch (Exception ex)
         {
-            errorMessage = "Помилка з'єднання з сервером.";
+            errorMessage = "Connection error. Please try again.";
             Console.WriteLine($"Registration error: {ex.Message}");
         }
         finally
