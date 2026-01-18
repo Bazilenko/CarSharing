@@ -11,8 +11,10 @@ namespace CarSharing.DAL.Repository.Interfaces
     {
        
         Task<IEnumerable<Review>> GetReviewsByCarIdAsync(int carId);
+        Task<Review> GetByBookingId(int bookingId);
 
-   
+
+
         Task<double> GetCarAverageRatingAsync(int carId);
 
         Task<bool> HasUserReviewedBookingAsync(int bookingId, int reviewerId);

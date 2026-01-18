@@ -309,6 +309,142 @@ body {
     cursor: pointer;
 }
 
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.results-count {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.sort-dropdown {
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #0073b6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+}
+
+.empty-state-icon {
+    font-size: 60px;
+    margin-bottom: 16px;
+}
+
+.empty-state-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.empty-state-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.btn-clear-filters {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .btn-clear-filters:hover {
+        border-color: #0073b6;
+        color: #0073b6;
+    }
+
+.brand-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.brand-pill {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    font-size: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+    .brand-pill:hover {
+        border-color: #0073b6;
+    }
+
+    .brand-pill.active {
+        background: #0073b6;
+        color: white;
+        border-color: #0073b6;
+    }
+
+.price-range {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.price-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.car-brand {
+    font-size: 11px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
 @media (max-width: 1200px) {
     .car-grid {
         grid-template-columns: repeat(2, 1fr);

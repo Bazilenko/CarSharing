@@ -25,7 +25,7 @@ namespace CarSharing.DAL.Entity
         public bool IsPetFriendly { get; set; }
 
         public decimal PricePerDay { get; set; }
-        public CarStatus Status { get; set; }
+        public CarStatus Status { get; set; } = 0;
 
         public double LocationLat { get; set; }
         public double LocationLng { get; set; }

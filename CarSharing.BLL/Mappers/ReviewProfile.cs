@@ -16,9 +16,9 @@ namespace CarSharing.BLL.Mappers
             CreateMap<CreateReviewDto, Review>();
 
             CreateMap<Review, ReviewDto>()
-              
-                .ForMember(dest => dest.ReviewerName, opt => opt.MapFrom(src => $"{src.Reviewer.FirstName} {src.Reviewer.LastName}"))
-                .ForMember(dest => dest.ReviewerAvatarUrl, opt => opt.Ignore());
+
+                .ForMember(dest => dest.ReviewerName, opt => opt.MapFrom(src => $"{src.Reviewer.FirstName} {src.Reviewer.LastName}"));
+                
         }
     }
 }

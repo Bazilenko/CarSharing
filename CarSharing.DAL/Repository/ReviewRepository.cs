@@ -36,6 +36,12 @@ namespace CarSharing.DAL.Repository
 
             return await ratings.AverageAsync(r => r.Rating);
         }
+        public async Task<Review> GetByBookingId(int bookingId)
+        {
+            return await _dbSet
+                .Include(r => r.Reviewer)
+                .FirstOrDefaultAsync(r => r.BookingId == bookingId);
+        }
 
         public async Task<bool> HasUserReviewedBookingAsync(int bookingId, int reviewerId)
         {

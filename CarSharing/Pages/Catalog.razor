@@ -3,575 +3,141 @@
 @inject HttpClient Http
 @inject NavigationManager Navigation
 
-<link href="css/app.css" rel="stylesheet" />
-
-<style>
-    /* Catalog Page Styles */
-    .navbar {
-        background: linear-gradient(90deg, #0077B6 0%, #005A8D 100%);
-        padding: 16px 60px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .logo-icon {
-        width: 40px;
-        height: 40px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .btn-signin {
-        color: white;
-        font-size: 15px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    .btn-menu {
-        color: white;
-        font-size: 24px;
-        background: none;
-        border: none;
-    }
-
-    /* Search Header */
-    .search-header {
-        background: white;
-        padding: 20px 60px;
-        display: flex;
-        gap: 20px;
-        align-items: flex-end;
-        border-bottom: 1px solid #E0E0E0;
-    }
-
-    .search-field {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .search-field label {
-        font-size: 13px;
-        color: #666;
-        font-weight: 500;
-    }
-
-    .search-field input {
-        padding: 12px 16px;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        font-size: 14px;
-        background: #FAFAFA;
-    }
-
-    .search-btn {
-        width: 48px;
-        height: 48px;
-        background: #0077B6;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-    }
-
-    /* Main Layout */
-    .catalog-container {
-        display: flex;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 24px;
-        gap: 24px;
-    }
-
-    /* Sidebar */
-    .sidebar {
-        width: 280px;
-        flex-shrink: 0;
-    }
-
-    .filter-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .map-preview {
-        width: 100%;
-        height: 140px;
-        background: linear-gradient(135deg, #E8F4FC 0%, #D0E8F7 100%);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 16px;
-        font-size: 40px;
-    }
-
-    .btn-map {
-        width: 100%;
-        background: #0077B6;
-        color: white;
-        border: none;
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .filter-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1A1A1A;
-        margin-bottom: 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .filter-toggle {
-        color: #999;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .filter-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .filter-btn {
-        padding: 8px 16px;
-        border: 1px solid #E0E0E0;
-        border-radius: 20px;
-        background: white;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .filter-btn:hover {
-        border-color: #0077B6;
-        color: #0077B6;
-    }
-
-    .filter-btn.active {
-        background: #1A1A1A;
-        color: white;
-        border-color: #1A1A1A;
-    }
-
-    .checkbox-group {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 14px;
-        color: #333;
-        cursor: pointer;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #0077B6;
-    }
-
-    /* Price Range */
-    .price-range {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .price-input {
-        flex: 1;
-        padding: 10px 12px;
-        border: 1px solid #E0E0E0;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-    /* Brand Pills */
-    .brand-pills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-
-    .brand-pill {
-        padding: 6px 12px;
-        border: 1px solid #E0E0E0;
-        border-radius: 16px;
-        font-size: 12px;
-        background: white;
-        cursor: pointer;
-    }
-
-    .brand-pill.active {
-        background: #0077B6;
-        color: white;
-        border-color: #0077B6;
-    }
-
-    /* Main Content */
-    .main-content {
-        flex: 1;
-    }
-
-    .results-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .results-count {
-        font-size: 14px;
-        color: #666;
-    }
-
-    .sort-dropdown {
-        padding: 10px 16px;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        font-size: 14px;
-        background: white;
-    }
-
-    /* Car Grid */
-    .car-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
-
-    .car-card {
-        background: white;
-        border: 1px solid #E0E0E0;
-        border-radius: 12px;
-        padding: 20px;
-        transition: all 0.3s;
-    }
-
-    .car-card:hover {
-        border-color: #0077B6;
-        box-shadow: 0 4px 20px rgba(0, 119, 182, 0.15);
-    }
-
-    .car-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 8px;
-    }
-
-    .car-brand {
-        font-size: 11px;
-        color: #999;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .car-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1A1A1A;
-        margin-top: 4px;
-    }
-
-    .rental-info {
-        color: #0077B6;
-        font-size: 12px;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        cursor: pointer;
-    }
-
-    .car-image {
-        width: 100%;
-        height: 120px;
-        object-fit: contain;
-        margin: 12px 0;
-    }
-
-    .car-specs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        padding: 12px 0;
-        border-top: 1px solid #F0F0F0;
-    }
-
-    .spec-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 12px;
-        color: #666;
-    }
-
-    .car-card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 12px;
-        border-top: 1px solid #F0F0F0;
-    }
-
-    .car-price {
-        font-size: 22px;
-        font-weight: 700;
-        color: #1A1A1A;
-    }
-
-    .car-price-label {
-        font-size: 12px;
-        color: #999;
-        font-weight: 400;
-    }
-
-    .btn-view-deal {
-        background: #0077B6;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .btn-view-deal:hover {
-        background: #005A8D;
-    }
-
-    /* Loading */
-    .loading-state {
-        text-align: center;
-        padding: 60px;
-        color: #666;
-    }
-
-    .spinner {
-        width: 40px;
-        height: 40px;
-        border: 3px solid #E0E0E0;
-        border-top-color: #0077B6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 16px;
-    }
-
-    @@keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @@media (max-width: 1200px) {
-        .car-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @@media (max-width: 992px) {
-        .catalog-container {
-            flex-direction: column;
-        }
-
-        .sidebar {
-            width: 100%;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .navbar, .search-header {
-            padding: 16px 20px;
-        }
-
-        .car-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<!-- Header -->
-<header class="navbar">
-    <a href="/" class="navbar-brand">
+<header class="header">
+    <div class="logo">
         <div class="logo-icon">🚗</div>
         <span>Carsharing P2P</span>
-    </a>
-    <div class="navbar-actions">
-        <a href="/login" class="btn-signin">👤 Sign In</a>
-        <button class="btn-menu">☰</button>
+    </div>
+    <div class="nav-buttons">
+        <button class="sign-in-btn">👤 Sign In</button>
+        <button class="menu-btn">☰</button>
     </div>
 </header>
 
-<!-- Search Header -->
-<div class="search-header">
-    <div class="search-field">
-        <label>Location</label>
-        <input type="text" @bind="searchLocation" placeholder="Malta International Airport" />
-    </div>
-    <div class="search-field">
-        <label>Pick-up Date</label>
-        <input type="date" @bind="pickupDate" />
-    </div>
-    <div class="search-field">
-        <label>Drop-off Date</label>
-        <input type="date" @bind="dropoffDate" />
-    </div>
-    <button class="search-btn">🔍</button>
-</div>
-
-<div class="catalog-container">
-    <!-- Sidebar Filters -->
+<div class="container">
     <aside class="sidebar">
-        <div class="filter-card">
-            <div class="map-preview">🗺️</div>
-            <button class="btn-map">Show On Map</button>
+        <div class="map-section">
+            <div class="map-placeholder">🗺️</div>
+            <button class="show-map-btn">Show On Map</button>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-title">
-                <span>Car Type</span>
-                <span class="filter-toggle">−</span>
-            </div>
+        <div class="filter-section">
+            <div class="filter-title">Car Type</div>
             <div class="filter-options">
-                <button class="filter-btn @(selectedCarType == "Mini" ? "active" : "")" @onclick="@(() => SelectCarType("Mini"))">Mini</button>
-                <button class="filter-btn @(selectedCarType == "Economy" ? "active" : "")" @onclick="@(() => SelectCarType("Economy"))">Economy</button>
-                <button class="filter-btn @(selectedCarType == "SUV" ? "active" : "")" @onclick="@(() => SelectCarType("SUV"))">SUV</button>
-                <button class="filter-btn @(selectedCarType == "Luxury" ? "active" : "")" @onclick="@(() => SelectCarType("Luxury"))">Luxury</button>
+                @foreach (var type in new[] { "Mini", "Economy", "SUV", "Luxury" })
+                {
+                    <button class="filter-btn @(selectedCarType == type ? "active" : "")"
+                            @onclick="@(() => SelectCarType(type))">
+                        @type
+                    </button>
+                }
             </div>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-title">
-                <span>Transmission</span>
-                <span class="filter-toggle">−</span>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-item">
-                    <input type="checkbox" checked="@filterAutomatic" @onchange="() => filterAutomatic = !filterAutomatic" />
+        <div class="filter-section">
+            <div class="filter-title">Transmission</div>
+            <div class="checkbox-list">
+                <label>
+                    <input type="checkbox" @bind="filterAutomatic" />
                     <span>Automatic</span>
                 </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" checked="@filterManual" @onchange="() => filterManual = !filterManual" />
+                <label>
+                    <input type="checkbox" @bind="filterManual" />
                     <span>Manual</span>
                 </label>
             </div>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-title">
-                <span>Price Range</span>
-                <span class="filter-toggle">−</span>
-            </div>
+        <div class="filter-section">
+            <div class="filter-title">Price Range</div>
             <div class="price-range">
-                <input type="number" class="price-input" placeholder="Min" @bind="minPrice" />
+                <input type="number" class="price-input" placeholder="Min €" @bind="minPrice" @bind:event="oninput" />
                 <span>—</span>
-                <input type="number" class="price-input" placeholder="Max" @bind="maxPrice" />
+                <input type="number" class="price-input" placeholder="Max €" @bind="maxPrice" @bind:event="oninput" />
             </div>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-title">
-                <span>Brand</span>
-                <span class="filter-toggle">−</span>
-            </div>
+        <div class="filter-section">
+            <div class="filter-title">Brand</div>
             <div class="brand-pills">
-                <span class="brand-pill @(selectedBrand == "" ? "active" : "")" @onclick="@(() => SetBrand(""))">All</span>
-                <span class="brand-pill @(selectedBrand == "Fiat" ? "active" : "")" @onclick="@(() => SetBrand("Fiat"))">Fiat</span>
-                <span class="brand-pill @(selectedBrand == "Toyota" ? "active" : "")" @onclick="@(() => SetBrand("Toyota"))">Toyota</span>
-                <span class="brand-pill @(selectedBrand == "BMW" ? "active" : "")" @onclick="@(() => SetBrand("BMW"))">BMW</span>
-                <span class="brand-pill @(selectedBrand == "Mercedes" ? "active" : "")" @onclick="@(() => SetBrand("Mercedes"))">Mercedes</span>
+                <span class="brand-pill @(selectedBrand == "" ? "active" : "")"
+                      @onclick="@(() => SetBrand(""))">All</span>
+                @foreach (var brand in availableBrands)
+                {
+                    <span class="brand-pill @(selectedBrand == brand ? "active" : "")"
+                          @onclick="@(() => SetBrand(brand))">
+                        @brand
+                    </span>
+                }
             </div>
         </div>
 
-        <div class="filter-card">
-            <div class="filter-title">
-                <span>Rental Company</span>
-                <span class="filter-toggle">−</span>
-            </div>
-            <div class="checkbox-group">
-                <label class="checkbox-item">
-                    <input type="checkbox" checked />
-                    <span>Sixt</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" />
-                    <span>Hertz</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" />
-                    <span>Avis</span>
-                </label>
-            </div>
+        <div class="filter-section">
+            <button class="btn-clear-filters" style="width: 100%;" @onclick="ClearFilters">
+                Clear All Filters
+            </button>
         </div>
     </aside>
 
-    <!-- Main Content -->
     <main class="main-content">
+        <div class="search-bar">
+            <div class="search-field">
+                <label>Location</label>
+                <input type="text" @bind="searchLocation" placeholder="Enter location" />
+            </div>
+            <div class="search-field">
+                <label>Pick-up Date</label>
+                <input type="date" @bind="pickupDate" />
+            </div>
+            <div class="search-field">
+                <label>Drop-off Date</label>
+                <input type="date" @bind="dropoffDate" />
+            </div>
+            <button class="search-submit-btn" @onclick="ApplySearch">🔍</button>
+        </div>
+
         <div class="results-header">
-            <span class="results-count">@(Cars?.Count ?? 0) cars found</span>
-            <select class="sort-dropdown">
-                <option>Sort by: Price (Low to High)</option>
-                <option>Sort by: Price (High to Low)</option>
-                <option>Sort by: Newest</option>
+            <span class="results-count">
+                @if (isLoading)
+                {
+                    <span>Loading...</span>
+                }
+                else
+                {
+                    <span>@FilteredCars.Count() car@(FilteredCars.Count() != 1 ? "s" : "") found</span>
+                }
+            </span>
+            <select class="sort-dropdown" @onchange="OnSortChange">
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="year-desc">Year: Newest First</option>
+                <option value="year-asc">Year: Oldest First</option>
             </select>
         </div>
 
-        @if (Cars == null)
+        @if (isLoading)
         {
             <div class="loading-state">
                 <div class="spinner"></div>
-                <p>Loading cars...</p>
+                <p>Loading available cars...</p>
             </div>
         }
-        else if (!Cars.Any())
+        else if (errorMessage != null)
         {
-            <div class="loading-state">
-                <p>No cars found matching your criteria.</p>
+            <div class="empty-state">
+                <div class="empty-state-icon">⚠️</div>
+                <div class="empty-state-title">Error Loading Cars</div>
+                <div class="empty-state-text">@errorMessage</div>
+                <button class="view-deal-btn" @onclick="LoadCars">Try Again</button>
+            </div>
+        }
+        else if (!FilteredCars.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">🚗</div>
+                <div class="empty-state-title">No Cars Found</div>
+                <div class="empty-state-text">Try adjusting your filters to see more results.</div>
+                <button class="btn-clear-filters" @onclick="ClearFilters">Clear Filters</button>
             </div>
         }
         else
@@ -579,18 +145,20 @@
             <div class="car-grid">
                 @foreach (var car in FilteredCars)
                 {
-                    <div class="car-card">
-                        <div class="car-card-header">
+                    <div class="car-card" @onclick="() => GoToDetails(car.Id)">
+                        <div class="car-header">
                             <div>
                                 <div class="car-brand">@car.Make</div>
                                 <div class="car-title">@car.Model</div>
+                                <div class="car-subtitle">@car.Year · @car.Transmission</div>
                             </div>
-                            <div class="rental-info">ℹ️ Rental Conditions</div>
+                            <div class="rental-conditions">ℹ️ Details</div>
                         </div>
 
-                        <img src="@(car.ImageUrls?.FirstOrDefault() ?? "images/no-car.png")"
+                        <img src="@GetCarImage(car)"
                              alt="@car.Model"
-                             class="car-image" />
+                             class="car-image"
+                             onerror="this.src='images/no-car.png'" />
 
                         <div class="car-specs">
                             <span class="spec-item">⚙️ @car.Transmission</span>
@@ -599,14 +167,18 @@
                             {
                                 <span class="spec-item">🐾 Pet Friendly</span>
                             }
+                            @if (!string.IsNullOrEmpty(car.AddressText))
+                            {
+                                <span class="spec-item">📍 @car.AddressText</span>
+                            }
                         </div>
 
-                        <div class="car-card-footer">
-                            <div>
-                                <div class="car-price">@car.PricePerDay.ToString("F0") €</div>
-                                <div class="car-price-label">Price per day</div>
+                        <div class="price-section">
+                            <div class="price-info">
+                                <div class="current-price">@car.PricePerDay.ToString("F0") €</div>
+                                <div class="price-per-day">Price per day</div>
                             </div>
-                            <button class="btn-view-deal" @onclick="() => GoToDetails(car.Id)">
+                            <button class="view-deal-btn" @onclick:stopPropagation="true" @onclick="() => GoToDetails(car.Id)">
                                 View Deal
                             </button>
                         </div>
@@ -619,48 +191,93 @@
 
 @code {
     private List<CarDto>? Cars;
-    private string searchLocation = "Malta International Airport";
+    private string searchLocation = "";
     private DateTime pickupDate = DateTime.Now;
     private DateTime dropoffDate = DateTime.Now.AddDays(3);
+
     private string selectedCarType = "";
     private string selectedBrand = "";
-    private bool filterAutomatic = true;
+    private bool filterAutomatic = false;
     private bool filterManual = false;
     private decimal? minPrice;
     private decimal? maxPrice;
+    private string sortBy = "price-asc";
 
-    private IEnumerable<CarDto> FilteredCars => Cars?.Where(c =>
-        (string.IsNullOrEmpty(selectedBrand) || c.Make == selectedBrand) &&
-        (!minPrice.HasValue || c.PricePerDay >= minPrice) &&
-        (!maxPrice.HasValue || c.PricePerDay <= maxPrice) &&
-        ((filterAutomatic && c.Transmission == "Automatic") || (filterManual && c.Transmission == "Manual") || (!filterAutomatic && !filterManual))
-    ) ?? Enumerable.Empty<CarDto>();
+    private bool isLoading = true;
+    private string? errorMessage = null;
+    private List<string> availableBrands = new();
 
-    protected override async Task OnInitializedAsync()
+    private IEnumerable<CarDto> FilteredCars
     {
+        get
+        {
+            if (Cars == null) return Enumerable.Empty<CarDto>();
+
+            var filtered = Cars.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(selectedBrand))
+                filtered = filtered.Where(c => c.Make.Equals(selectedBrand, StringComparison.OrdinalIgnoreCase));
+
+            if (minPrice.HasValue)
+                filtered = filtered.Where(c => c.PricePerDay >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                filtered = filtered.Where(c => c.PricePerDay <= maxPrice.Value);
+
+            if (filterAutomatic || filterManual)
+            {
+                filtered = filtered.Where(c =>
+                    (filterAutomatic && c.Transmission.Equals("Automatic", StringComparison.OrdinalIgnoreCase)) ||
+                    (filterManual && c.Transmission.Equals("Manual", StringComparison.OrdinalIgnoreCase)));
+            }
+
+            return sortBy switch
+            {
+                "price-desc" => filtered.OrderByDescending(c => c.PricePerDay),
+                "year-asc" => filtered.OrderBy(c => c.Year),
+                "year-desc" => filtered.OrderByDescending(c => c.Year),
+                _ => filtered.OrderBy(c => c.PricePerDay)
+            };
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadCars();
+
+    private async Task LoadCars()
+    {
+        isLoading = true;
+        errorMessage = null;
         try
         {
             Cars = await Http.GetFromJsonAsync<List<CarDto>>("api/cars");
+            if (Cars != null)
+            {
+                availableBrands = Cars.Select(c => c.Make).Distinct().OrderBy(b => b).ToList();
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading cars: {ex.Message}");
-            Cars = new List<CarDto>();
+            errorMessage = "Failed to load cars. Please try again later.";
+            Cars = new();
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
-    private void SelectCarType(string type)
+    private void SelectCarType(string type) => selectedCarType = selectedCarType == type ? "" : type;
+    private void SetBrand(string brand) => selectedBrand = brand;
+    private void ClearFilters()
     {
-        selectedCarType = selectedCarType == type ? "" : type;
+        selectedCarType = selectedBrand = searchLocation = "";
+        filterAutomatic = filterManual = false;
+        minPrice = maxPrice = null;
     }
 
-    private void SetBrand(string brand)
-    {
-        selectedBrand = brand;
-    }
+    private void OnSortChange(ChangeEventArgs e) => sortBy = e.Value?.ToString() ?? "price-asc";
+    private void GoToDetails(int id) => Navigation.NavigateTo($"/car/{id}");
 
-    private void GoToDetails(int id)
-    {
-        Navigation.NavigateTo($"/cars/{id}");
-    }
+    private string GetCarImage(CarDto car) => car.ImageUrls?.FirstOrDefault() ?? "images/no-car.png";
+    private void ApplySearch() {  }
 }

@@ -75,6 +75,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICarService, CarService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IGenericRepository<CarImage>, GenericRepository<CarImage>>();
 
 builder.Services.AddAutoMapper(typeof(BookingProfile));
