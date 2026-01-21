@@ -1,0 +1,302 @@
+﻿@using System.IdentityModel.Tokens.Jwt
+@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+<style>
+
+    .alert-overlay {
+        
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6); 
+        display: flex;
+        justify-content: center; 
+        align-items: center; 
+
+        z-index: 9999; 
+    }
+
+    .alert-box {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+       
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        max-width: 90%; 
+        width: 400px;
+        text-align: center;
+        color: #333;
+    }
+
+        
+        .alert-box button {
+            background-color: #0077B6;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            .alert-box button:hover {
+                background-color: #001F3F;
+            }
+
+ .footer {
+        background: #001F3F;
+        color: white;
+        padding: 60px;
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 48px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .footer-logo {
+        width: 48px;
+        height: 48px;
+        background: #0077B6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .footer-brand-name {
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .footer-desc {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 24px;
+    }
+
+    .footer-heading {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .footer-links {
+        list-style: none;
+    }
+
+    .footer-links li {
+        margin-bottom: 12px;
+    }
+
+    .footer-links a {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 14px;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: white;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .social-link {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: white;
+        transition: all 0.3s;
+    }
+
+    .social-link:hover {
+        background: #0077B6;
+    }
+
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 48px;
+        padding-top: 24px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 14px;
+    }
+
+
+
+</style>
+<div class="page">
+    @* --- HEADER --- *@
+    <header class="navbar">
+        <a href="/" class="navbar-brand">
+            <div class="logo-icon">🚗</div>
+            <span>Carsharing P2P</span>
+        </a>
+        <nav class="navbar-nav">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/catalog" class="nav-link">Catalog</a>
+            <a href="/my-bookings" class="nav-link">My Bookings</a>
+            @if(isUserLoggedIn){
+            <a href="javascript:void(0)" @onclick="CheckHostRole" class="nav-link">Rent out</a>
+            }
+        </nav>
+        
+        @if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <div class="alert-overlay">
+                <div class="alert-box">
+                    <p>@alertMessage</p>
+                    <button class="btn-signin" @onclick="() => alertMessage = null">ОК</button>
+                </div>
+            </div>
+        }
+        <div class="navbar-actions">
+            @if (isUserLoggedIn)
+            {
+                <button @onclick="HandleLogout" class="btn-signin">👤 Logout</button>
+            }
+            else
+            {
+                <a href="/login" class="btn-signin">👤 Sign In</a>
+            }
+            <button class="btn-menu">☰</button>
+        </div>
+    </header>
+
+    @* --- ОСНОВНИЙ КОНТЕНТ СТОРІНОК --- *@
+    <main>
+        @Body
+    </main>
+
+    @* --- FOOTER --- *@
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <div class="footer-brand">
+                    <div class="footer-logo">🚗</div>
+                    <span class="footer-brand-name">Carsharing P2P</span>
+                </div>
+                <p class="footer-desc">Navigate your way to any large adventure – car rentals for every journey and destination, making every road an opportunity.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">📘</a>
+                    <a href="#" class="social-link">📷</a>
+                    <a href="#" class="social-link">🐦</a>
+                    <a href="#" class="social-link">📌</a>
+                </div>
+            </div>
+            @* Блоки з посиланнями (Quick Links, Locations тощо) залишаємо як є *@
+            <div>
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/catalog">Catalog</a></li>
+                    <li><a href="/my-bookings">My Bookings</a></li>
+                    <li><a href="/login">Sign In</a></li>
+                </ul>
+            </div>
+            @* Додайте інші ваші блоки Locations та Follow Us тут *@
+        </div>
+        <div class="footer-bottom">
+            © 2026 Carsharing P2P. All rights reserved.
+        </div>
+    </footer>
+</div>
+
+@code {
+    private bool isUserLoggedIn;
+    private string? userRole;
+    private string? alertMessage;
+
+    private void CheckHostRole()
+    {
+        alertMessage = null;
+
+        if (userRole == "Host")
+        {
+            Navigation.NavigateTo("/add-car");
+        }
+        else
+        {
+
+            alertMessage = "Тільки користувач з роллю Host має можливість здавати в оренду авто.";
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                isUserLoggedIn = true;
+                userRole = GetRoleFromToken(token);
+            }
+            else
+            {
+                isUserLoggedIn = false;
+                alertMessage = null;
+                userRole = null;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+    private string? GetRoleFromToken(string token)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            // Шукаємо стандартний клейм ролі
+            var roleClaim = jwtToken.Claims.FirstOrDefault(c =>
+                c.Type == "role" ||
+                c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
+            return roleClaim?.Value;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+  
+
+    private async Task HandleLogout()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "authToken");
+        isUserLoggedIn = false;
+        Navigation.NavigateTo("/login");
+    }
+}

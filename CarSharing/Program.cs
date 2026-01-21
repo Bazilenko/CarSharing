@@ -1,6 +1,8 @@
 using System;
+using System.Globalization;
 using System.Text;
 using AutoMapper;
+using Blazored.LocalStorage;
 using CarSharing.BLL.Mappers;
 using CarSharing.BLL.Services;
 using CarSharing.BLL.Services.Interfaces;
@@ -12,6 +14,7 @@ using CarSharing.DAL.Repository.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -21,6 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
@@ -82,6 +86,20 @@ builder.Services.AddAutoMapper(typeof(BookingProfile));
 builder.Services.AddAutoMapper(typeof(CarProfile));
 builder.Services.AddAutoMapper(typeof(ReviewProfile));
 builder.Services.AddAutoMapper(typeof(UserProfile));
+
+builder.Services.AddControllers(options =>
+{
+    options.ModelMetadataDetailsProviders.Add(
+        new SystemTextJsonValidationMetadataProvider());
+})
+.AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.NumberHandling =
+        System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
+});
+
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 
 builder.Services.AddRazorPages();

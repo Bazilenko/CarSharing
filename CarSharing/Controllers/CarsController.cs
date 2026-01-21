@@ -43,7 +43,7 @@ namespace CarSharing.Controllers
 
         // POST: api/cars
         [HttpPost]
-        [Authorize] // Тільки авторизовані користувачі можуть додавати авто
+        [Authorize] 
         public async Task<IActionResult> Create([FromForm] CreateCarDto dto, [FromForm] List<IFormFile> images)
         {
             try

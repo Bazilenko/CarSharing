@@ -1,0 +1,762 @@
+﻿@page "/add-car"
+@using CarSharing.BLL.DTOs.Car
+@using System.Net.Http.Headers
+@using System.IO
+@using System.Globalization;    
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IJSRuntime JSRuntime
+
+<link href="css/Catalog.css" rel="stylesheet" />
+
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 2px 10px rgba(0, 115, 182, 0.15);
+    }
+
+    .form-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+        .form-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+            .form-group label .required {
+                color: #e74c3c;
+                margin-left: 4px;
+            }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus,
+            .form-group textarea:focus {
+                outline: none;
+                border-color: #0073b6;
+            }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: border-color 0.3s;
+    }
+
+        .checkbox-group:hover {
+            border-color: #0073b6;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+    .location-group {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+    }
+
+    .location-input {
+        flex: 1;
+    }
+
+    .btn-location {
+        background: #0073b6;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btn-location:hover {
+            background: #005a8d;
+        }
+
+        .btn-location:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+    .location-status {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+        .location-status.success {
+            color: #27ae60;
+        }
+
+        .location-status.error {
+            color: #e74c3c;
+        }
+
+    .image-upload-section {
+        margin-bottom: 20px;
+    }
+
+    .image-upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+    }
+
+        .image-upload-area:hover {
+            border-color: #0073b6;
+            background: #f8f9fa;
+        }
+
+    .file-input-hidden {
+        position: absolute;
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        z-index: -1;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 12px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .upload-hint {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .image-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .image-preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #ddd;
+    }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .image-remove-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(231, 76, 60, 0.9);
+        color: white;
+        border: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: #0073b6;
+        color: white;
+        border: none;
+        padding: 14px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+
+        .btn-submit:hover {
+            background: #005a8d;
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+    .btn-cancel {
+        background: white;
+        color: #666;
+        border: 1px solid #ddd;
+        padding: 14px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+
+        .btn-cancel:hover {
+            border-color: #0073b6;
+            color: #0073b6;
+        }
+
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    @@media (max-width: 768px) {
+        .form-grid
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .form-card {
+        padding: 24px;
+    }
+
+    .image-preview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .location-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    }
+</style>
+
+
+
+<div class="form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1>Add Your Car</h1>
+            <p>List your car and start earning money</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success">
+                ✓ @successMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-error">
+                ✗ @errorMessage
+            </div>
+        }
+
+        <EditForm Model="@carModel" OnValidSubmit="HandleSubmit">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Make <span class="required">*</span></label>
+                    <input type="text" @bind="carModel.Make" placeholder="e.g., Toyota" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Model <span class="required">*</span></label>
+                    <input type="text" @bind="carModel.Model" placeholder="e.g., Camry" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Year <span class="required">*</span></label>
+                    <input type="number" @bind="carModel.Year" min="1900" max="@DateTime.Now.Year" placeholder="2020" required />
+
+                </div>
+
+                <div class="form-group">
+                    <label>Price Per Day (€) <span class="required">*</span></label>
+                
+                    <input type="number" @bind="carModel.PricePerDay" @bind:event="oninput" step="0.01" min="0" placeholder="50.00" required />
+                    @if (carModel.PricePerDay > 0)
+                    {
+                        <div class="commission-hint" style="margin-top: 8px; font-size: 0.85em; color: #666;">
+                            <span>💰 Ви отримаєте: <strong>@PriceAfterCommission.ToString("F2") €</strong></span>
+                            <span style="display: block; font-size: 0.9em; color: #999;">(Комісія сервісу 10%)</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>License Plate <span class="required">*</span></label>
+                    <input type="text" @bind="carModel.LicensePlate" placeholder="AB 1234 CD" required />
+                </div>
+
+                <div class="form-group">
+                    <label>VIN Code</label>
+                    <input type="text" @bind="carModel.VinCode" placeholder="17 characters" maxlength="17" />
+                </div>
+
+                <div class="form-group">
+                    <label>Transmission <span class="required">*</span></label>
+                    <select @bind="carModel.Transmission" required>
+                        <option value="">Select transmission</option>
+                        <option value="Automatic">Automatic</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fuel Type <span class="required">*</span></label>
+                    <select @bind="carModel.FuelType" required>
+                        <option value="">Select fuel type</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Electric">Electric</option>
+                        <option value="Hybrid">Hybrid</option>
+                        <option value="LPG">LPG</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Body Type <span class="required">*</span></label>
+                    <select @bind="carModel.BodyType" required>
+                        <option value="">Select body type</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="Coupe">Coupe</option>
+                        <option value="Wagon">Wagon</option>
+                        <option value="Van">Van</option>
+                        <option value="Pickup">Pickup</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Pet Friendly</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" @bind="carModel.IsPetFriendly" id="petFriendly" />
+                        <label for="petFriendly" style="margin: 0;">Allow pets in the car</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Location <span class="required">*</span></label>
+                <div class="location-group">
+                    <div class="location-input">
+                        <input type="text" @bind="carModel.AddressText" placeholder="Enter address or use current location" required />
+                        @if (!string.IsNullOrEmpty(locationStatus))
+                        {
+                            <div class="location-status @(locationError ? "error" : "success")">
+                                @locationStatus
+                            </div>
+                        }
+                    </div>
+                    <button type="button" class="btn-location" @onclick="GetCurrentLocation" disabled="@isGettingLocation">
+                        @if (isGettingLocation)
+                        {
+                            <span>⏳ Getting...</span>
+                        }
+                        else
+                        {
+                            <span>📍 Use My Location</span>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group full-width image-upload-section">
+                <label>Car Photos <span class="required">*</span></label>
+                <div class="image-upload-area">
+                    <InputFile OnChange="HandleImageUpload" multiple accept="image/*" class="file-input-hidden" id="imageUpload" />
+                    <label for="imageUpload" style="cursor: pointer; display: block; width: 100%;">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Click to upload photos</div>
+                        <div class="upload-hint">PNG, JPG, JPEG up to 10MB each (max 5 photos)</div>
+                    </label>
+                </div>
+
+                @if (imagePreviewUrls.Any())
+                {
+                    <div class="image-preview-grid">
+                        @for (int i = 0; i < imagePreviewUrls.Count; i++)
+                        {
+                            var index = i;
+                            <div class="image-preview-item">
+                                <img src="@imagePreviewUrls[index]" alt="Car photo @(index + 1)" />
+                                <button type="button" class="image-remove-btn" @onclick="() => RemoveImage(index)" @onclick:stopPropagation="true">×</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn-cancel" @onclick="Cancel">Cancel</button>
+                <button type="submit" class="btn-submit" disabled="@isSubmitting">
+                    @if (isSubmitting)
+                    {
+                        <span>⏳ Adding Car...</span>
+                    }
+                    else
+                    {
+                        <span>Add Car</span>
+                    }
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private decimal PriceAfterCommission => carModel.PricePerDay * 0.9m;
+    protected override async Task OnInitializedAsync()
+    {
+        
+        var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+        if (string.IsNullOrEmpty(token))
+        {
+            
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+    public class PendingFile
+    {
+        public byte[] Data { get; set; }
+        public string FileName { get; set; }
+        public string ContentType { get; set; }
+    }
+    private CreateCarDto carModel = new CreateCarDto
+    {
+        Year = DateTime.Now.Year,
+        IsPetFriendly = false
+    };
+
+    private List<PendingFile> filesToUpload = new();
+    private List<string> imagePreviewUrls = new();
+
+    private bool isSubmitting = false;
+    private bool isGettingLocation = false;
+    private string? successMessage;
+    private string? errorMessage;
+    private string? locationStatus;
+    private bool locationError = false;
+
+    private async Task GetCurrentLocation()
+    {
+        isGettingLocation = true;
+        locationError = false;
+        locationStatus = "Getting your location...";
+        StateHasChanged();
+
+        try
+        {
+            var location = await JSRuntime.InvokeAsync<GeolocationResult>("getCurrentPosition");
+
+            if (location != null)
+            {
+                carModel.LocationLat = location.Latitude;
+                carModel.LocationLng = location.Longitude;
+
+                
+                carModel.AddressText = $"Lat: {location.Latitude:F6}, Lng: {location.Longitude:F6}";
+                locationStatus = "✓ Location detected successfully!";
+                locationError = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            locationStatus = "✗ Could not get location. Please enter address manually.";
+            locationError = true;
+            Console.WriteLine($"Geolocation error: {ex.Message}");
+        }
+        finally
+        {
+            isGettingLocation = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        errorMessage = null;
+        try
+        {
+            var files = e.GetMultipleFiles(5);
+            foreach (var file in files)
+            {
+                if (filesToUpload.Count >= 5) { errorMessage = "Maximum 5 photos allowed"; break; }
+                if (file.Size > 10 * 1024 * 1024) { errorMessage = $"File {file.Name} is too large"; continue; }
+
+               
+                var resizedFile = await file.RequestImageFileAsync(file.ContentType, 800, 800);
+                using var stream = resizedFile.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+                using var ms = new MemoryStream();
+                await stream.CopyToAsync(ms);
+                var buffer = ms.ToArray();
+
+                
+                filesToUpload.Add(new PendingFile
+                {
+                    Data = buffer,
+                    FileName = file.Name,
+                    ContentType = file.ContentType
+                });
+
+                
+                var imageUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+                imagePreviewUrls.Add(imageUrl);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error uploading: {ex.Message}";
+        }
+        StateHasChanged();
+    }
+
+    private void RemoveImage(int index)
+    {
+        if (index >= 0 && index < filesToUpload.Count)
+        {
+            filesToUpload.RemoveAt(index);
+            imagePreviewUrls.RemoveAt(index);
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        isSubmitting = true;
+        errorMessage = null;
+        successMessage = null;
+        StateHasChanged();
+
+        try
+        {
+           
+            if (filesToUpload.Count == 0)
+            {
+                errorMessage = "Please add at least one photo of your car";
+                isSubmitting = false;
+                return;
+            }
+
+           
+            using var content = new MultipartFormDataContent();
+
+            
+            content.Add(new StringContent(carModel.Make ?? ""), nameof(carModel.Make));
+            content.Add(new StringContent(carModel.Model ?? ""), nameof(carModel.Model));
+            content.Add(new StringContent(carModel.Year.ToString()), nameof(carModel.Year));
+            content.Add(new StringContent(carModel.LicensePlate ?? ""), nameof(carModel.LicensePlate));
+            content.Add(new StringContent(carModel.VinCode ?? string.Empty), nameof(carModel.VinCode));
+            content.Add(new StringContent(carModel.Transmission ?? ""), nameof(carModel.Transmission));
+            content.Add(new StringContent(carModel.FuelType ?? ""), nameof(carModel.FuelType));
+            content.Add(new StringContent(carModel.BodyType ?? ""), nameof(carModel.BodyType));
+            content.Add(new StringContent(carModel.AddressText ?? ""), nameof(carModel.AddressText));
+            content.Add(new StringContent(carModel.IsPetFriendly.ToString().ToLower()), nameof(carModel.IsPetFriendly));
+
+            
+            var culture = new System.Globalization.CultureInfo("uk-UA");
+            content.Add(new StringContent(carModel.PricePerDay.ToString("F2", culture)), "PricePerDay");
+            content.Add(new StringContent(carModel.LocationLat.ToString("F8", culture)), "LocationLat");
+            content.Add(new StringContent(carModel.LocationLng.ToString("F8", culture)), "LocationLng");
+            
+            foreach (var file in filesToUpload)
+            {
+                var fileContent = new ByteArrayContent(file.Data);
+                fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+              
+                content.Add(fileContent, "images", file.FileName);
+            }
+
+            
+            var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+
+            
+            using var request = new HttpRequestMessage(HttpMethod.Post, "api/cars");
+            request.Content = content;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+
+            
+            var response = await Http.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "✓ Car added successfully!";
+                StateHasChanged();
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/catalog");
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                errorMessage = "Session is over. Please, log in again.";
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+               
+                var errorBody = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Error: {response.StatusCode} - {errorBody}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Submit error: {ex.Message}";
+            Console.WriteLine($"Error during submission: {ex}");
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/catalog");
+    }
+
+    public class GeolocationResult
+    {
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+    }
+}
+
+<script>
+    window.getCurrentPosition = () => {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation is not supported'));
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                },
+                (error) => {
+                    reject(error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        });
+    };
+</script>

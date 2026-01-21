@@ -392,106 +392,7 @@
         display: block;
     }
 
-    /* Footer */
-    .footer {
-        background: #001F3F;
-        color: white;
-        padding: 60px;
-    }
-
-    .footer-content {
-        display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 48px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .footer-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    .footer-logo {
-        width: 48px;
-        height: 48px;
-        background: #0077B6;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-    }
-
-    .footer-brand-name {
-        font-size: 20px;
-        font-weight: 700;
-    }
-
-    .footer-desc {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 14px;
-        line-height: 1.7;
-        margin-bottom: 24px;
-    }
-
-    .footer-heading {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-
-    .footer-links {
-        list-style: none;
-    }
-
-    .footer-links li {
-        margin-bottom: 12px;
-    }
-
-    .footer-links a {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 14px;
-        transition: color 0.3s;
-    }
-
-    .footer-links a:hover {
-        color: white;
-    }
-
-    .social-links {
-        display: flex;
-        gap: 12px;
-        margin-top: 20px;
-    }
-
-    .social-link {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-        color: white;
-        transition: all 0.3s;
-    }
-
-    .social-link:hover {
-        background: #0077B6;
-    }
-
-    .footer-bottom {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        margin-top: 48px;
-        padding-top: 24px;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.4);
-        font-size: 14px;
-    }
+    
 
     /* Responsive */
     @@media (max-width: 1024px) {
@@ -557,22 +458,7 @@
     }
 </style>
 
-<!-- Header -->
-<header class="navbar">
-    <a href="/" class="navbar-brand">
-        <div class="logo-icon">🚗</div>
-        <span>Carsharing P2P</span>
-    </a>
-    <nav class="navbar-nav">
-        <a href="/" class="nav-link">Home</a>
-        <a href="/catalog" class="nav-link">Catalog</a>
-        <a href="/my-bookings" class="nav-link">My Bookings</a>
-    </nav>
-    <div class="navbar-actions">
-        <a href="/login" class="btn-signin">👤 Sign In</a>
-        <button class="btn-menu">☰</button>
-    </div>
-</header>
+
 
 <!-- Hero Section -->
 <section class="hero-section">
@@ -722,54 +608,7 @@
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="footer-content">
-        <div>
-            <div class="footer-brand">
-                <div class="footer-logo">🚗</div>
-                <span class="footer-brand-name">Carsharing P2P</span>
-            </div>
-            <p class="footer-desc">Navigate your way to any large adventure – car rentals for every journey and destination, making every road an opportunity.</p>
-            <div class="social-links">
-                <a href="#" class="social-link">📘</a>
-                <a href="#" class="social-link">📷</a>
-                <a href="#" class="social-link">🐦</a>
-                <a href="#" class="social-link">📌</a>
-            </div>
-        </div>
-        <div>
-            <h4 class="footer-heading">Quick Links</h4>
-            <ul class="footer-links">
-                <li><a href="/">Home</a></li>
-                <li><a href="/catalog">Catalog</a></li>
-                <li><a href="/my-bookings">My Bookings</a></li>
-                <li><a href="/login">Sign In</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="footer-heading">Our Locations</h4>
-            <ul class="footer-links">
-                <li><a href="#">Malta International Airport</a></li>
-                <li><a href="#">Valletta City Center</a></li>
-                <li><a href="#">Sliema Waterfront</a></li>
-                <li><a href="#">Gozo Ferry Terminal</a></li>
-            </ul>
-        </div>
-        <div>
-            <h4 class="footer-heading">Follow Us</h4>
-            <ul class="footer-links">
-                <li><a href="#">Facebook</a></li>
-                <li><a href="#">Instagram</a></li>
-                <li><a href="#">Twitter</a></li>
-                <li><a href="#">LinkedIn</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        © 2026 Carsharing P2P. All rights reserved.
-    </div>
-</footer>
+
 
 @code {
     private SearchModel searchData = new SearchModel();
