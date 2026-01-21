@@ -15,6 +15,8 @@ namespace CarSharing.BLL.DTOs.Car
         public int Year { get; set; }
         public decimal PricePerDay { get; set; }
         public string Transmission { get; set; }
+        public string FuelType { get; set; }
+        public string BodyType { get; set; }
         public bool IsPetFriendly { get; set; }
         public string Status { get; set; }
         public double LocationLat { get; set; }
@@ -23,5 +25,6 @@ namespace CarSharing.BLL.DTOs.Car
 
         public UserDto Host { get; set; }
         public List<string> ImageUrls { get; set; }
+
     }
 }

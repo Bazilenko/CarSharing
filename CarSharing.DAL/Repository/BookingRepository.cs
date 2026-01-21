@@ -31,7 +31,8 @@ namespace CarSharing.DAL.Repository
         public async Task<IEnumerable<Booking>> GetBookingsByUserIdAsync(int userId)
         {
             return await _dbSet
-                .Include(b => b.Car) 
+                .Include(b => b.Car)
+                .ThenInclude(c => c.Images)
                 .Where(b => b.RenterId == userId)
                 .OrderByDescending(b => b.StartTime)
                 .ToListAsync();

@@ -1,316 +1,11 @@
 ﻿@page "/my-bookings"
 @using CarSharing.BLL.DTOs.Booking
+@using System.Net.Http.Headers
 @inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
-@using System.Net.Http.Headers
 
-<link href="css/app.css" rel="stylesheet" />
-
-<style>
-    /* MyBookings Page Styles */
-    .navbar {
-        background: linear-gradient(90deg, #0077B6 0%, #005A8D 100%);
-        padding: 16px 60px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .logo-icon {
-        width: 40px;
-        height: 40px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .navbar-nav {
-        display: flex;
-        gap: 32px;
-    }
-
-    .nav-link {
-        color: rgba(255, 255, 255, 0.8);
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: 500;
-        transition: color 0.3s;
-    }
-
-    .nav-link:hover, .nav-link.active {
-        color: white;
-    }
-
-    .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .btn-signin {
-        color: white;
-        font-size: 15px;
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    /* Page Content */
-    .page-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 60px;
-    }
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-    }
-
-    .page-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #1A1A1A;
-    }
-
-    .btn-browse {
-        background: #0077B6;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-    }
-
-    .btn-browse:hover {
-        background: #005A8D;
-    }
-
-    /* Booking Cards */
-    .bookings-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .booking-card {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
-        display: flex;
-        gap: 24px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        transition: all 0.3s;
-    }
-
-    .booking-card:hover {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .booking-image {
-        width: 200px;
-        height: 120px;
-        background: #F5F8FB;
-        border-radius: 8px;
-        object-fit: contain;
-    }
-
-    .booking-info {
-        flex: 1;
-    }
-
-    .booking-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #1A1A1A;
-        margin-bottom: 8px;
-    }
-
-    .booking-dates {
-        display: flex;
-        gap: 24px;
-        margin-bottom: 12px;
-    }
-
-    .date-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .date-label {
-        font-size: 12px;
-        color: #999;
-        text-transform: uppercase;
-    }
-
-    .date-value {
-        font-size: 14px;
-        color: #333;
-        font-weight: 500;
-    }
-
-    .booking-status {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .status-active {
-        background: #E8F9EF;
-        color: #28A745;
-    }
-
-    .status-completed {
-        background: #E8F4FC;
-        color: #0077B6;
-    }
-
-    .status-cancelled {
-        background: #FEE2E2;
-        color: #DC3545;
-    }
-
-    .booking-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        justify-content: space-between;
-    }
-
-    .booking-price {
-        text-align: right;
-    }
-
-    .price-value {
-        font-size: 24px;
-        font-weight: 700;
-        color: #0077B6;
-    }
-
-    .price-label {
-        font-size: 12px;
-        color: #999;
-    }
-
-    .btn-cancel {
-        background: none;
-        border: 1px solid #DC3545;
-        color: #DC3545;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .btn-cancel:hover {
-        background: #DC3545;
-        color: white;
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 80px 40px;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    .empty-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-    }
-
-    .empty-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #1A1A1A;
-        margin-bottom: 12px;
-    }
-
-    .empty-desc {
-        color: #666;
-        margin-bottom: 24px;
-    }
-
-    /* Loading */
-    .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 80px;
-        color: #666;
-    }
-
-    .spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid #E0E0E0;
-        border-top-color: #0077B6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 16px;
-    }
-
-    @@keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @@media (max-width: 768px) {
-        .navbar {
-            padding: 16px 20px;
-        }
-
-        .navbar-nav {
-            display: none;
-        }
-
-        .page-container {
-            padding: 24px 20px;
-        }
-
-        .booking-card {
-            flex-direction: column;
-        }
-
-        .booking-image {
-            width: 100%;
-            height: 160px;
-        }
-
-        .booking-actions {
-            flex-direction: row;
-            justify-content: space-between;
-            margin-top: 16px;
-        }
-    }
-</style>
+<link href="css/MyBookings.css" rel="stylesheet" />
 
 
 
@@ -345,34 +40,56 @@
         <div class="bookings-grid">
             @foreach (var b in bookings)
             {
-                <div class="booking-card">
-                    <img src="images/car-hero.png" alt="Car" class="booking-image" />
+                var status = GetBookingStatus(b);
+                var timeInfo = GetTimeInfo(b, status);
+
+                <div class="booking-card @(status == BookingStatus.Expired ? "expired" : "")">
+                    <img src="@b.CarImageUrl" alt="@b.CarTitle" class="booking-image" />
+
                     <div class="booking-info">
                         <h3 class="booking-title">@b.CarTitle</h3>
+
                         <div class="booking-dates">
                             <div class="date-item">
                                 <span class="date-label">Pick-up</span>
-                                <span class="date-value">@b.StartTime.ToString("MMM dd, yyyy")</span>
+                                <span class="date-value">@b.StartTime.ToString("MMM dd, yyyy HH:mm")</span>
                             </div>
                             <div class="date-item">
                                 <span class="date-label">Drop-off</span>
-                                <span class="date-value">@b.EndTime.ToString("MMM dd, yyyy")</span>
+                                <span class="date-value">@b.EndTime.ToString("MMM dd, yyyy HH:mm")</span>
                             </div>
                             <div class="date-item">
                                 <span class="date-label">Duration</span>
-                                <span class="date-value">@((b.EndTime - b.StartTime).Days) days</span>
+                                <span class="date-value">@GetDuration(b)</span>
                             </div>
                         </div>
-                        <span class="booking-status status-active">Active</span>
+
+                        <div class="booking-status-row">
+                            <span class="booking-status @GetStatusClass(status)">
+                                @GetStatusText(status)
+                            </span>
+
+                            @if (!string.IsNullOrEmpty(timeInfo))
+                            {
+                                <span class="time-remaining @(status == BookingStatus.Active && IsUrgent(b) ? "urgent" : "")">
+                                    @timeInfo
+                                </span>
+                            }
+                        </div>
                     </div>
+
                     <div class="booking-actions">
                         <div class="booking-price">
-                            <div class="price-value">$@b.TotalPrice.ToString("F2")</div>
+                            <div class="price-value">€@b.TotalPrice.ToString("F2")</div>
                             <div class="price-label">Total paid</div>
                         </div>
-                        <button class="btn-cancel" @onclick="() => CancelBooking(b.Id)">
-                            Cancel Booking
-                        </button>
+
+                        @if (status == BookingStatus.Pending || status == BookingStatus.Active)
+                        {
+                            <button class="btn-cancel" @onclick="() => CancelBooking(b.Id)">
+                                Cancel Booking
+                            </button>
+                        }
                     </div>
                 </div>
             }
@@ -382,6 +99,13 @@
 
 @code {
     private List<BookingDto>? bookings;
+
+    private enum BookingStatus
+    {
+        Pending,
+        Active,
+        Expired
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -421,12 +145,111 @@
         }
     }
 
+    private BookingStatus GetBookingStatus(BookingDto booking)
+    {
+        var now = DateTime.Now;
+
+        if (now < booking.StartTime)
+            return BookingStatus.Pending;
+        else if (now >= booking.StartTime && now <= booking.EndTime)
+            return BookingStatus.Active;
+        else
+            return BookingStatus.Expired;
+    }
+
+    private string GetStatusClass(BookingStatus status)
+    {
+        return status switch
+        {
+            BookingStatus.Pending => "status-pending",
+            BookingStatus.Active => "status-active",
+            BookingStatus.Expired => "status-expired",
+            _ => ""
+        };
+    }
+
+    private string GetStatusText(BookingStatus status)
+    {
+        return status switch
+        {
+            BookingStatus.Pending => "⏳ Pending",
+            BookingStatus.Active => "✓ Active",
+            BookingStatus.Expired => "✓ Completed",
+            _ => ""
+        };
+    }
+
+    private string GetTimeInfo(BookingDto booking, BookingStatus status)
+    {
+        var now = DateTime.Now;
+
+        if (status == BookingStatus.Pending)
+        {
+            var timeUntilStart = booking.StartTime - now;
+            return FormatTimeSpan(timeUntilStart, "Starts in");
+        }
+        else if (status == BookingStatus.Active)
+        {
+            var timeRemaining = booking.EndTime - now;
+            return FormatTimeSpan(timeRemaining, "Time left");
+        }
+
+        return string.Empty;
+    }
+
+    private string FormatTimeSpan(TimeSpan timeSpan, string prefix)
+    {
+        if (timeSpan.TotalDays >= 1)
+        {
+            int days = (int)timeSpan.TotalDays;
+            int hours = timeSpan.Hours;
+            return hours > 0 ? $"{prefix}: {days}d {hours}h" : $"{prefix}: {days}d";
+        }
+        else if (timeSpan.TotalHours >= 1)
+        {
+            int hours = (int)timeSpan.TotalHours;
+            int minutes = timeSpan.Minutes;
+            return minutes > 0 ? $"{prefix}: {hours}h {minutes}m" : $"{prefix}: {hours}h";
+        }
+        else
+        {
+            int minutes = (int)timeSpan.TotalMinutes;
+            return $"{prefix}: {minutes}m";
+        }
+    }
+
+    private bool IsUrgent(BookingDto booking)
+    {
+        var timeRemaining = booking.EndTime - DateTime.Now;
+        return timeRemaining.TotalHours <= 24;
+    }
+
+    private string GetDuration(BookingDto booking)
+    {
+        var duration = booking.EndTime - booking.StartTime;
+        int days = (int)duration.TotalDays;
+        int hours = duration.Hours;
+
+        if (days > 0)
+            return hours > 0 ? $"{days}d {hours}h" : $"{days}d";
+        else
+            return hours > 0 ? $"{hours}h" : $"{duration.Minutes}m";
+    }
+
+    private string GetCarImage(BookingDto booking)
+    {
+        return "images/car-hero.png";
+    }
+
     private async Task CancelBooking(int id)
     {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure you want to cancel this booking?");
+        if (!confirmed) return;
+
         try
         {
             var token = await JS.InvokeAsync<string>("localStorage.getItem", "authToken");
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"https://localhost:7276/api/bookings/{id}");
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"https://localhost:7276/api/booking/{id}");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var response = await Http.SendAsync(request);
@@ -434,10 +257,15 @@
             {
                 await LoadBookings();
             }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Failed to cancel booking. Please try again.");
+            }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error cancelling booking: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", "An error occurred. Please try again.");
         }
     }
 }

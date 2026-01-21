@@ -1,4 +1,4 @@
-п»ї* {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -293,7 +293,7 @@ body {
         background: #005a8d;
     }
 
-/* РЎС‚РёР»С– РґР»СЏ С‡РµРєР±РѕРєСЃС–РІ Сѓ С„С–Р»СЊС‚СЂР°С… */
+/* Стилі для чекбоксів у фільтрах */
 .filter-section label {
     display: flex;
     align-items: center;

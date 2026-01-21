@@ -15,8 +15,8 @@ namespace CarSharing.BLL.Mappers
         public CarProfile()
         {
             CreateMap<CreateCarDto, Car>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CarStatus.Active)) // За замовчуванням активна
-                .ForMember(dest => dest.Transmission, opt => opt.MapFrom(src => src.Transmission)); // String -> String
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => CarStatus.Active)) 
+                .ForMember(dest => dest.Transmission, opt => opt.MapFrom(src => src.Transmission)); 
 
             
             CreateMap<UpdateCarDto, Car>()

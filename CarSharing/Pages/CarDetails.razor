@@ -1,531 +1,18 @@
 ﻿@page "/cars/{Id:int}"
 @using CarSharing.BLL.DTOs.Car
 @using CarSharing.BLL.DTOs.Booking
+@using System.Net.Http.Headers
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@using System.Net.Http.Headers
 
-<link href="css/app.css" rel="stylesheet" />
+<link href="css/CarDetails.css" rel="stylesheet" />
 
-<style>
-    /* Booking Page Styles */
-    .navbar {
-        background: linear-gradient(90deg, #0077B6 0%, #005A8D 100%);
-        padding: 16px 60px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
 
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: white;
-        font-size: 20px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .logo-icon {
-        width: 40px;
-        height: 40px;
-        background: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .navbar-actions {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .btn-signin {
-        color: white;
-        font-size: 15px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        text-decoration: none;
-    }
-
-    /* Progress Steps */
-    .progress-bar {
-        background: white;
-        padding: 20px 60px;
-        display: flex;
-        justify-content: center;
-        gap: 40px;
-        border-bottom: 1px solid #E0E0E0;
-    }
-
-    .progress-step {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #999;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .progress-step.active {
-        color: #0077B6;
-    }
-
-    .progress-step.completed {
-        color: #28A745;
-    }
-
-    .step-number {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: #E0E0E0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-    }
-
-    .progress-step.active .step-number {
-        background: #0077B6;
-        color: white;
-    }
-
-    .progress-step.completed .step-number {
-        background: #28A745;
-        color: white;
-    }
-
-    /* Main Layout */
-    .booking-container {
-        display: flex;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px;
-        gap: 40px;
-    }
-
-    .booking-main {
-        flex: 1;
-    }
-
-    .booking-sidebar {
-        width: 360px;
-        flex-shrink: 0;
-    }
-
-    /* Section Titles */
-    .section-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1A1A1A;
-        margin-bottom: 24px;
-    }
-
-    /* Car Selection Card */
-    .selection-card {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    .car-selection {
-        display: flex;
-        gap: 20px;
-        align-items: center;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #E0E0E0;
-    }
-
-    .car-selection-image {
-        width: 200px;
-        height: 120px;
-        object-fit: contain;
-        background: #F5F8FB;
-        border-radius: 8px;
-        padding: 10px;
-    }
-
-    .car-selection-info {
-        flex: 1;
-    }
-
-    .car-selection-brand {
-        font-size: 12px;
-        color: #999;
-        text-transform: uppercase;
-    }
-
-    .car-selection-title {
-        font-size: 20px;
-        font-weight: 600;
-        color: #1A1A1A;
-        margin: 4px 0 12px;
-    }
-
-    .car-selection-specs {
-        display: flex;
-        gap: 16px;
-    }
-
-    .spec-tag {
-        font-size: 13px;
-        color: #666;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .btn-change {
-        background: none;
-        border: 2px solid #0077B6;
-        color: #0077B6;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    /* Add-ons Section */
-    .addons-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .addon-item {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 16px;
-        background: #F9FAFB;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .addon-item:hover {
-        background: #F0F7FC;
-    }
-
-    .addon-item.selected {
-        background: #E8F4FC;
-        border: 2px solid #0077B6;
-    }
-
-    .addon-icon {
-        width: 48px;
-        height: 48px;
-        background: #0077B6;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-        color: white;
-    }
-
-    .addon-info {
-        flex: 1;
-    }
-
-    .addon-name {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1A1A1A;
-    }
-
-    .addon-desc {
-        font-size: 13px;
-        color: #666;
-        margin-top: 2px;
-    }
-
-    .addon-price {
-        font-size: 15px;
-        font-weight: 600;
-        color: #0077B6;
-    }
-
-    .addon-checkbox {
-        width: 22px;
-        height: 22px;
-        accent-color: #0077B6;
-    }
-
-    /* Driver Details Form */
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-label {
-        font-size: 14px;
-        font-weight: 500;
-        color: #333;
-    }
-
-    .form-input {
-        padding: 14px 16px;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        font-size: 15px;
-        transition: all 0.3s;
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #0077B6;
-        box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
-    }
-
-    /* Price Summary */
-    .price-card {
-        background: white;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-        position: sticky;
-        top: 100px;
-    }
-
-    .price-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-
-    .price-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #1A1A1A;
-    }
-
-    .price-total {
-        font-size: 28px;
-        font-weight: 700;
-        color: #0077B6;
-    }
-
-    .price-breakdown {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding: 20px 0;
-        border-top: 1px solid #E0E0E0;
-        border-bottom: 1px solid #E0E0E0;
-    }
-
-    .price-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-    }
-
-    .price-label {
-        color: #666;
-    }
-
-    .price-value {
-        font-weight: 500;
-        color: #1A1A1A;
-    }
-
-    .discount-input {
-        display: flex;
-        gap: 12px;
-        margin: 20px 0;
-    }
-
-    .discount-input input {
-        flex: 1;
-        padding: 12px 16px;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        font-size: 14px;
-    }
-
-    .btn-apply {
-        background: #1A1A1A;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .btn-continue {
-        width: 100%;
-        background: #0077B6;
-        color: white;
-        padding: 16px;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    .btn-continue:hover {
-        background: #005A8D;
-    }
-
-    .btn-continue:disabled {
-        background: #CCC;
-        cursor: not-allowed;
-    }
-
-    /* Confirmation Card */
-    .confirmation-card {
-        background: #E8F9EF;
-        border: 2px solid #28A745;
-        border-radius: 12px;
-        padding: 32px;
-        text-align: center;
-        margin-bottom: 24px;
-    }
-
-    .confirmation-icon {
-        width: 64px;
-        height: 64px;
-        background: #28A745;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 16px;
-        font-size: 32px;
-        color: white;
-    }
-
-    .confirmation-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #1A1A1A;
-        margin-bottom: 8px;
-    }
-
-    .confirmation-desc {
-        color: #666;
-        font-size: 15px;
-    }
-
-    /* Alert */
-    .alert {
-        padding: 12px 16px;
-        border-radius: 8px;
-        margin-bottom: 16px;
-        font-size: 14px;
-    }
-
-    .alert-error {
-        background: #FEE2E2;
-        color: #DC3545;
-        border: 1px solid #DC3545;
-    }
-
-    /* Loading */
-    .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 80px;
-        color: #666;
-    }
-
-    .spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid #E0E0E0;
-        border-top-color: #0077B6;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 16px;
-    }
-
-    @@keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @@media (max-width: 992px) {
-        .booking-container {
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .booking-sidebar {
-            width: 100%;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .navbar {
-            padding: 16px 20px;
-        }
-
-        .progress-bar {
-            padding: 16px 20px;
-            gap: 20px;
-        }
-
-        .progress-step span {
-            display: none;
-        }
-
-        .car-selection {
-            flex-direction: column;
-            text-align: center;
-        }
-    }
-</style>
-
-<!-- Header -->
-<header class="navbar">
-    <a href="/" class="navbar-brand">
-        <div class="logo-icon">🚗</div>
-        <span>Carsharing P2P</span>
-    </a>
-    <div class="navbar-actions">
-        <a href="/login" class="btn-signin">👤 Sign In</a>
-    </div>
-</header>
-
-<!-- Progress Bar -->
 <div class="progress-bar">
     <div class="progress-step @(currentStep >= 1 ? "active" : "") @(currentStep > 1 ? "completed" : "")">
         <span class="step-number">1</span>
-        <span>Selection & Add-ons</span>
+        <span>Car Details</span>
     </div>
     <div class="progress-step @(currentStep >= 2 ? "active" : "") @(currentStep > 2 ? "completed" : "")">
         <span class="step-number">2</span>
@@ -550,57 +37,122 @@ else
         <div class="booking-main">
             @if (currentStep == 1)
             {
-                <!-- Step 1: Selection & Add-ons -->
-                <h2 class="section-title">Step 1. Selection & Add-ons</h2>
+                <h2 class="section-title">Step 1. Car Details</h2>
 
                 <div class="selection-card">
-                    <div class="car-selection">
-                        <img src="@GetImageSrc(car)" alt="@car.Model" class="car-selection-image" />
-                        <div class="car-selection-info">
-                            <div class="car-selection-brand">@car.Make</div>
-                            <div class="car-selection-title">@car.Model (@car.Year)</div>
-                            <div class="car-selection-specs">
-                                <span class="spec-tag">⚙️ @car.Transmission</span>
-                                <span class="spec-tag">📍 @car.AddressText</span>
-                            </div>
+                    <div class="image-gallery">
+                        <div class="gallery-main">
+                            <img src="@GetImageSrc(currentImageIndex)" alt="@car.Model" class="gallery-image" />
+
+                            @if (car.ImageUrls != null && car.ImageUrls.Count > 1)
+                            {
+                                <div class="gallery-nav">
+                                    <button class="gallery-btn" @onclick="PreviousImage" disabled="@(currentImageIndex == 0)">
+                                        ‹
+                                    </button>
+                                    <button class="gallery-btn" @onclick="NextImage" disabled="@(currentImageIndex == car.ImageUrls.Count - 1)">
+                                        ›
+                                    </button>
+                                </div>
+
+                                <div class="gallery-counter">
+                                    @(currentImageIndex + 1) / @car.ImageUrls.Count
+                                </div>
+                            }
                         </div>
-                        <button class="btn-change" @onclick="GoToCatalog">Change</button>
+
+                        @if (car.ImageUrls != null && car.ImageUrls.Count > 1)
+                        {
+                            <div class="gallery-thumbnails">
+                                @for (int i = 0; i < car.ImageUrls.Count; i++)
+                                {
+                                    var index = i;
+                                    <img src="@GetImageSrc(index)"
+                                         alt="Thumbnail @(index + 1)"
+                                         class="thumbnail @(currentImageIndex == index ? "active" : "")"
+                                         @onclick="() => currentImageIndex = index" />
+                                }
+                            </div>
+                        }
                     </div>
                 </div>
 
                 <div class="selection-card">
-                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Add-ons</h3>
-                    <div class="addons-list">
-                        <label class="addon-item @(addGuestDriver ? "selected" : "")">
-                            <div class="addon-icon">👤</div>
-                            <div class="addon-info">
-                                <div class="addon-name">Add Guest Driver</div>
-                                <div class="addon-desc">Add an additional driver to your rental</div>
-                            </div>
-                            <div class="addon-price">$ 5.95/day</div>
-                            <input type="checkbox" class="addon-checkbox" @bind="addGuestDriver" />
-                        </label>
-
-                        <label class="addon-item @(addChildSeat ? "selected" : "")">
-                            <div class="addon-icon">👶</div>
-                            <div class="addon-info">
-                                <div class="addon-name">Child Seat</div>
-                                <div class="addon-desc">Child safety seat for ages 0-4</div>
-                            </div>
-                            <div class="addon-price">$ 4.95/day</div>
-                            <input type="checkbox" class="addon-checkbox" @bind="addChildSeat" />
-                        </label>
-
-                        <label class="addon-item @(addGPS ? "selected" : "")">
-                            <div class="addon-icon">📍</div>
-                            <div class="addon-info">
-                                <div class="addon-name">GPS</div>
-                                <div class="addon-desc">Portable GPS navigation device</div>
-                            </div>
-                            <div class="addon-price">$ 2.95/day</div>
-                            <input type="checkbox" class="addon-checkbox" @bind="addGPS" />
-                        </label>
+                    <div class="car-info-header">
+                        <div class="car-title-section">
+                            <div class="car-brand">@car.Make</div>
+                            <h3 class="car-title">@car.Model (@car.Year)</h3>
+                            <div class="car-location">📍 @car.AddressText</div>
+                        </div>
+                        <button class="btn-change" @onclick="GoToCatalog">Change Car</button>
                     </div>
+
+                    <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #666;">Specifications</h4>
+                    <div class="specs-grid">
+                        <div class="spec-item">
+                            <div class="spec-icon">⚙️</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Transmission</div>
+                                <div class="spec-value">@car.Transmission</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-item">
+                            <div class="spec-icon">⛽</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Fuel Type</div>
+                                <div class="spec-value">@car.FuelType</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-item">
+                            <div class="spec-icon">🚗</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Body Type</div>
+                                <div class="spec-value">@car.BodyType</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-item">
+                            <div class="spec-icon">@(car.IsPetFriendly ? "🐾" : "🚫")</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Pet Friendly</div>
+                                <div class="spec-value">@(car.IsPetFriendly ? "Yes" : "No")</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-item">
+                            <div class="spec-icon">📊</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Status</div>
+                                <div class="spec-value">@car.Status</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-item">
+                            <div class="spec-icon">💰</div>
+                            <div class="spec-content">
+                                <div class="spec-label">Price per Day</div>
+                                <div class="spec-value">$@car.PricePerDay</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (car.Host != null)
+                    {
+                        <div class="host-section">
+                            <div class="host-header">Hosted By</div>
+                            <div class="host-info">
+                                <div class="host-avatar">
+                                    @car.Host.FirstName?.Substring(0, 1).ToUpper()
+                                </div>
+                                <div class="host-details">
+                                    <div class="host-name">@car.Host.FirstName @car.Host.LastName</div>
+                                    <div class="host-email">@car.Host.Email</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
 
                 <div class="selection-card">
@@ -619,7 +171,6 @@ else
             }
             else if (currentStep == 2)
             {
-                <!-- Step 2: Driver Details -->
                 <h2 class="section-title">Step 2. Driver Details</h2>
 
                 <div class="selection-card">
@@ -662,7 +213,6 @@ else
             }
             else if (currentStep == 3)
             {
-                
                 <div class="confirmation-card">
                     <div class="confirmation-icon">✓</div>
                     <h2 class="confirmation-title">Booking Confirmed!</h2>
@@ -671,13 +221,13 @@ else
 
                 <div class="selection-card">
                     <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 20px;">Booking Details</h3>
-                    <div class="car-selection">
-                        <img src="@GetImageSrc(car)" alt="@car.Model" class="car-selection-image" />
-                        <div class="car-selection-info">
-                            <div class="car-selection-brand">@car.Make</div>
-                            <div class="car-selection-title">@car.Model (@car.Year)</div>
-                            <div class="car-selection-specs">
-                                <span class="spec-tag">📅 @bookingDto.StartTime.ToShortDateString() - @bookingDto.EndTime.ToShortDateString()</span>
+                    <div style="display: flex; gap: 20px; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #E0E0E0;">
+                        <img src="@GetImageSrc(0)" alt="@car.Model" style="width: 200px; height: 120px; object-fit: contain; background: #F5F8FB; border-radius: 8px; padding: 10px;" />
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; color: #999; text-transform: uppercase;">@car.Make</div>
+                            <div style="font-size: 20px; font-weight: 600; color: #1A1A1A; margin: 4px 0 12px;">@car.Model (@car.Year)</div>
+                            <div style="font-size: 13px; color: #666; display: flex; align-items: center; gap: 4px;">
+                                📅 @bookingDto.StartTime.ToShortDateString() - @bookingDto.EndTime.ToShortDateString()
                             </div>
                         </div>
                     </div>
@@ -689,7 +239,6 @@ else
             }
         </div>
 
-       
         <div class="booking-sidebar">
             <div class="price-card">
                 <div class="price-header">
@@ -700,29 +249,8 @@ else
                 <div class="price-breakdown">
                     <div class="price-row">
                         <span class="price-label">@car.Model × @GetDays() days</span>
-                        <span class="price-value">$ @(car.PricePerDay * GetDays())</span>
+                        <span class="price-value">$ @(car.PricePerDay* GetDays())</span>
                     </div>
-                    @if (addGuestDriver)
-                    {
-                        <div class="price-row">
-                            <span class="price-label">Guest Driver × @GetDays() days</span>
-                            <span class="price-value">$ @(5.95m * GetDays())</span>
-                        </div>
-                    }
-                    @if (addChildSeat)
-                    {
-                        <div class="price-row">
-                            <span class="price-label">Child Seat × @GetDays() days</span>
-                            <span class="price-value">$ @(4.95m * GetDays())</span>
-                        </div>
-                    }
-                    @if (addGPS)
-                    {
-                        <div class="price-row">
-                            <span class="price-label">GPS × @GetDays() days</span>
-                            <span class="price-value">$ @(2.95m * GetDays())</span>
-                        </div>
-                    }
                 </div>
 
                 @if (currentStep < 3)
@@ -756,7 +284,7 @@ else
                             }
                         </button>
                         <button style="width: 100%; margin-top: 12px; padding: 14px; background: none; border: 1px solid #E0E0E0; border-radius: 10px; cursor: pointer;" @onclick="() => currentStep = 1">
-                            ← Back to Add-ons
+                            ← Back to Car Details
                         </button>
                     }
                 }
@@ -767,17 +295,13 @@ else
 
 @code {
     [Parameter] public int Id { get; set; }
-    
+
     private CarDto? car;
     private CreateBookingDto bookingDto = new() { StartTime = DateTime.Now.AddDays(1), EndTime = DateTime.Now.AddDays(4) };
     private string errorMessage = "";
     private bool isSubmitting = false;
     private int currentStep = 1;
-
-    // Add-ons
-    private bool addGuestDriver = false;
-    private bool addChildSeat = false;
-    private bool addGPS = false;
+    private int currentImageIndex = 0;
 
     // Driver Details
     private string driverFirstName = "";
@@ -804,6 +328,22 @@ else
         }
     }
 
+    private void NextImage()
+    {
+        if (car?.ImageUrls != null && currentImageIndex < car.ImageUrls.Count - 1)
+        {
+            currentImageIndex++;
+        }
+    }
+
+    private void PreviousImage()
+    {
+        if (currentImageIndex > 0)
+        {
+            currentImageIndex--;
+        }
+    }
+
     private int GetDays()
     {
         var days = (bookingDto.EndTime - bookingDto.StartTime).Days;
@@ -813,14 +353,10 @@ else
     private decimal CalculateTotal()
     {
         if (car == null) return 0;
-        
+
         var days = GetDays();
         var total = car.PricePerDay * days;
-        
-        if (addGuestDriver) total += 5.95m * days;
-        if (addChildSeat) total += 4.95m * days;
-        if (addGPS) total += 2.95m * days;
-        
+
         return total;
     }
 
@@ -885,14 +421,14 @@ else
         }
     }
 
-    private string GetImageSrc(CarDto car)
+    private string GetImageSrc(int index)
     {
-        if (car.ImageUrls != null && car.ImageUrls.Any())
+        if (car?.ImageUrls != null && index < car.ImageUrls.Count)
         {
-            var img = car.ImageUrls.First();
+            var img = car.ImageUrls[index];
             return img.StartsWith("http") ? img : $"{ApiBaseUrl}{img}";
         }
-        return "https://via.placeholder.com/300x200?text=No+Image";
+        return "https://via.placeholder.com/400x300?text=No+Image";
     }
 
     private void GoToCatalog()

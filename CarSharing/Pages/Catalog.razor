@@ -4,6 +4,7 @@
 @inject NavigationManager Navigation
 
 
+<link href="css/Catalog.css" rel="stylesheet" />
 
 <div class="container">
     <aside class="sidebar">
@@ -267,7 +268,7 @@
     }
 
     private void OnSortChange(ChangeEventArgs e) => sortBy = e.Value?.ToString() ?? "price-asc";
-    private void GoToDetails(int id) => Navigation.NavigateTo($"/car/{id}");
+    private void GoToDetails(int id) => Navigation.NavigateTo($"/cars/{id}");
 
     private string GetCarImage(CarDto car) => car.ImageUrls?.FirstOrDefault() ?? "images/no-car.png";
     private void ApplySearch() {  }

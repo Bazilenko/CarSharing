@@ -25,7 +25,7 @@ namespace CarSharing.Controllers
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("Не вдалося ідентифікувати користувача.");
+                return Unauthorized("Cannot identifier user.");
 
             int userId = int.Parse(userIdClaim);
             var result = await _service.CreateBookingAsync(dto, userId);
